@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ietscroll.dto.UserDTO;
 import com.ietscroll.entity.UserEntity;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.DuplicateResourceException;
+import com.ietscroll.exception.ResourceNotFoundException;
 import com.ietscroll.repository.UserRepository;
 import com.ietscroll.response.Result;
 import com.ietscroll.service.OTPService;
@@ -48,13 +51,13 @@ public class UserServiceImpl implements UserService {
 	public UserDTO register(UserDTO userDTO) {
 
 		if (userDTO.getEmail() ==null || !(userDTO.getEmail().endsWith("@ietdavv.edu.in") || userDTO.getEmail().equals(adminEmail))) {
-	        throw new UsernameNotFoundException("Incorrect email");
+	        throw new BadRequestException("Only @ietdavv.edu.in email addresses are accepted");
 	    }
 		UserEntity found = userRepo.findByEmail(userDTO.getEmail());
 		UserEntity found1 = userRepo.findByUsername(userDTO.getUsername());
 
 		if (found != null || found1 != null) {
-			throw new RuntimeException("User with the email/username already exist");
+			throw new DuplicateResourceException("User with the email/username already exist");
 		}
 
 		UserEntity user = new UserEntity();
@@ -94,11 +97,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDTO getUserByEmail(@NotNull @Email @NotBlank String email) {
 		if (email == null || !(email.endsWith("@ietdavv.edu.in") || email.equals(adminEmail))) {
-			throw new UsernameNotFoundException("Incorrect email");
+			throw new BadRequestException("Only @ietdavv.edu.in email addresses are accepted");
 		}
 		UserEntity user = userRepo.findByEmail(email);
 		if (user == null) {
-			throw new UsernameNotFoundException("User doesn't exist");
+			throw new ResourceNotFoundException("User doesn't exist");
 		}
 		return modelMapper.map(user, UserDTO.class);
 	}
@@ -110,10 +113,10 @@ public class UserServiceImpl implements UserService {
 		var userFound = userRepo.findByUsername(newUsername);
 
 		if (userFound != null) {
-			throw new RuntimeException(newUsername + " Already exist, kindly try another username");
+			throw new DuplicateResourceException(newUsername + " Already exist, kindly try another username");
 		}
 		if (user == null) {
-			throw new UsernameNotFoundException("User doesn't exist");
+			throw new ResourceNotFoundException("User doesn't exist");
 		}
 
 		user.setUsername(newUsername);
@@ -128,7 +131,7 @@ public class UserServiceImpl implements UserService {
 		UserEntity user = userRepo.findByEmail(email);
 
 		if (user == null) {
-			throw new UsernameNotFoundException("User doesn't exist");
+			throw new ResourceNotFoundException("User doesn't exist");
 		}
 
 		user.setFullName(newFullName);

@@ -12,6 +12,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ietscroll.exception.BadRequestException;
 import com.ietscroll.response.QualityOfResume;
 import com.ietscroll.service.ResumeCheckerService;
 
@@ -29,7 +30,7 @@ public class ResumeCheckerServiceImpl implements ResumeCheckerService {
 	@Override
 	public QualityOfResume getQuality(MultipartFile file, String role, int experience) {
 		if (!DOCUMENT_TYPES.contains(file.getContentType())) {
-			throw new RuntimeException("Kindly upload your resume in form of PDF/DOCS ");
+			throw new BadRequestException("Kindly upload your resume in form of PDF/DOCS ");
 		}
 		return resumeChatClient
 				.prompt()
@@ -42,7 +43,7 @@ public class ResumeCheckerServiceImpl implements ResumeCheckerService {
 	private static String extractTextFromFile(MultipartFile file) {
 
 		if (file == null || file.isEmpty()) {
-			throw new IllegalArgumentException("File is empty or null");
+			throw new BadRequestException("File is empty or null");
 		}
 		try {
 			TikaDocumentReader reader = new TikaDocumentReader(new InputStreamResource(file.getInputStream()));
@@ -60,7 +61,7 @@ public class ResumeCheckerServiceImpl implements ResumeCheckerService {
 			return content.toString().trim();
 
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to read file");
+			throw new BadRequestException("Failed to read file. Please make sure it's a valid, uncorrupted PDF or DOCX.");
 		}
 	}
 

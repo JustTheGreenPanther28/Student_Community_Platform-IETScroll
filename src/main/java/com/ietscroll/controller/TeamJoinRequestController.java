@@ -3,6 +3,8 @@ package com.ietscroll.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,10 +38,14 @@ public class TeamJoinRequestController {
 	@Operation(summary = "Request to join a team", description = "Submit a request to join a team using team ID and message.")
 	@PostMapping
 
-	public Result requestToJoin(Authentication authentication, @RequestBody TeamJoiningRequest teamJoiningRequest) {
-
-		return teamRequestService.requestToJoinTeam(authentication.getName(),
+	public ResponseEntity<?> requestToJoin(Authentication authentication,
+			@RequestBody TeamJoiningRequest teamJoiningRequest) {
+		Result result = teamRequestService.requestToJoinTeam(authentication.getName(),
 				UUID.fromString(teamJoiningRequest.teamId()), teamJoiningRequest.message());
+		if (result == Result.SUCCESS) {
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
 	@Operation(summary = "Get pending join requests", description = "Fetch all pending join requests for the team owner.")

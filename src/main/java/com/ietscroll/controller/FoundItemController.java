@@ -57,7 +57,7 @@ public class FoundItemController {
 
 		Result result = foundItemService.uploadFoundItem(authentication.getName(), foundItemDTO, image);
 
-		ResponseEntity<Result> finalResult = new ResponseEntity<>(result, HttpStatusCode.valueOf(200));
+		ResponseEntity<Result> finalResult = new ResponseEntity<>(result, HttpStatusCode.valueOf(201));
 		return finalResult;
 	}
 

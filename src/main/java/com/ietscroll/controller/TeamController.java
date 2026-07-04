@@ -1,6 +1,8 @@
 package com.ietscroll.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,7 +49,7 @@ public class TeamController {
 	@Operation(summary = "Create a team", description = "Creates a new team. The purpose is validated using AI moderation before saving.")
 	@PostMapping
 
-	public TeamResponse createTeam(Authentication authentication,
+	public ResponseEntity<TeamResponse> createTeam(Authentication authentication,
 			@RequestBody TeamCreationRequest teamCreationRequest) {
 		TeamDTO teamDTO = new TeamDTO();
 		teamDTO.setPurpose(teamCreationRequest.purpose());
@@ -55,7 +57,7 @@ public class TeamController {
 		teamDTO.setSkillIds(teamCreationRequest.skillIds());
 		teamDTO.setPrivacy(teamCreationRequest.privacy());
 
-		return teamService.createTeam(authentication.getName(), teamDTO);
+		return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(authentication.getName(), teamDTO));
 	}
 
 	@Operation(summary = "Close team", description = "Closes the currently active team created by the user.")

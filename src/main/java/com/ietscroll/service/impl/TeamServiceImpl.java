@@ -19,6 +19,10 @@ import com.ietscroll.entity.Team;
 import com.ietscroll.entity.TeamFinderSkill;
 import com.ietscroll.entity.TeamJoinRequest;
 import com.ietscroll.entity.UserEntity;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.ContentModerationException;
+import com.ietscroll.exception.DuplicateResourceException;
+import com.ietscroll.exception.ResourceNotFoundException;
 import com.ietscroll.general.enums.Privacy;
 import com.ietscroll.general.enums.TeamRequestStatus;
 import com.ietscroll.general.enums.TeamStatus;
@@ -56,18 +60,18 @@ public class TeamServiceImpl implements TeamService {
 	public TeamResponse createTeam(String ownerEmail, TeamDTO team) {
 
 		if (ownerEmail == null || team == null) {
-			throw new RuntimeException("Invalid details");
+			throw new BadRequestException("Invalid details");
 		}
 
 		int teamsCreated = teamRepo.countByCreatedBy_EmailAndStatus(ownerEmail, TeamStatus.OPEN);
 		if (teamsCreated >= 1) {
-			throw new RuntimeException("You can't create more than one team");
+			throw new DuplicateResourceException("You can't create more than one team");
 		}
 
 		String isSafe = mistralChatClient.prompt().user(team.getPurpose()).call().content();
 
 		if (!Boolean.parseBoolean(isSafe)) {
-			throw new RuntimeException("Kindly maintain decorum!");
+			throw new ContentModerationException("Kindly maintain decorum!");
 		}
 
 		UserEntity user = userRepo.findByEmail(ownerEmail);
@@ -78,10 +82,12 @@ public class TeamServiceImpl implements TeamService {
 		teamEntity.setPurpose(team.getPurpose());
 		teamEntity.setPrivacy(team.getPrivacy());
 
-		List<Skills> skills = skillRepository.findAllById(team.getSkillIds());
-
-		if (skills.size() != team.getSkillIds().size()) {
-			throw new RuntimeException("Some skills not found");
+		List<Skills> skills = new ArrayList<>();
+		if (team.getSkillIds() != null && !team.getSkillIds().isEmpty()) {
+			skills = skillRepository.findAllById(team.getSkillIds());
+			if (skills.size() != team.getSkillIds().size()) {
+				throw new ResourceNotFoundException("Some skills not found");
+			}
 		}
 
 		List<TeamFinderSkill> neededSkills = new ArrayList<>();
@@ -131,7 +137,7 @@ public class TeamServiceImpl implements TeamService {
 	public Result changeTeamSize(String ownerEmail, int teamSize) {
 
 		if (teamSize <= 0 || teamSize > 20) {
-			throw new RuntimeException("Team size should not less than zero and higher than twenty");
+			throw new BadRequestException("Team size should not less than zero and higher than twenty");
 		}
 		int count = teamRepo.updateTeamSize(ownerEmail, teamSize);
 		
@@ -141,13 +147,13 @@ public class TeamServiceImpl implements TeamService {
 	@Override
 	public TeamResponse getTeamById(UUID publicId) {
 		if (publicId == null || publicId.toString().isBlank()) {
-			throw new RuntimeException("Invalid Id");
+			throw new BadRequestException("Invalid Id");
 		}
 
 		Team team = teamRepo.findByPublicId(publicId);
 
 		if (team == null) {
-			throw new RuntimeException("No valid team found with given team Id");
+			throw new ResourceNotFoundException("No valid team found with given team Id");
 		}
 
 		TeamResponse response = new TeamResponse();
@@ -170,7 +176,7 @@ public class TeamServiceImpl implements TeamService {
 		Page<Team >teams = teamRepo.findByStatusAndPrivacy(TeamStatus.OPEN, Privacy.PUBLIC, pageable);
 		
 		if(teams==null) {
-			throw new RuntimeException("No active teams rightnow");
+			throw new ResourceNotFoundException("No active teams rightnow");
 		}
 		return teams.map(
 				team -> {
@@ -192,7 +198,7 @@ public class TeamServiceImpl implements TeamService {
 
 		Team team = teamRepo.findByStatusAndCreatedBy_Email(TeamStatus.OPEN, onwerEmail);
 		if(team==null) {
-			throw new RuntimeException("Team doesn't exist");
+			throw new ResourceNotFoundException("Team doesn't exist");
 		}
 		TeamResponse teamResponse = modelMapper.map(team, TeamResponse.class);
 		teamResponse.setCreatedBy(onwerEmail);

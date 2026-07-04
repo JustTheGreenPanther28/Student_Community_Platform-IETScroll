@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ietscroll.dto.FoundItemDTO;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.LimitExceededException;
 import com.ietscroll.dto.PagedResponseDTO;
 import com.ietscroll.entity.FoundItemEntity;
 import com.ietscroll.general.enums.FoundItemStatus;
@@ -65,19 +67,19 @@ public class FoundItemServiceImpl implements FoundItemService {
 	@Transactional
 	public Result uploadFoundItem(String email, FoundItemDTO foundItemDTo, MultipartFile image) throws IOException {
 		if (foundItemDTo == null) {
-			throw new RuntimeException("Please give valid input");
+			throw new BadRequestException("Please give valid input");
 		}
 
 		if (image == null || image.isEmpty()) {
-			throw new RuntimeException("Add Image of the lost product!");
+			throw new BadRequestException("Add Image of the lost product!");
 		}
 
 		if (!ALLOWED_TYPES.contains(image.getContentType())) {
-			throw new RuntimeException("Kindly add valid image type!");
+			throw new BadRequestException("Kindly add valid image type!");
 		}
 
 		if (foundItemRepo.countByUser(email) >= 3) {
-			throw new RuntimeException(
+			throw new LimitExceededException(
 					"Maximum found-item request of a user can have is three, kindly close other request to create a new request.");
 		}
 
@@ -124,7 +126,7 @@ public class FoundItemServiceImpl implements FoundItemService {
 	@Transactional
 	public Result closeFoundItemRequest(String email, String publicId) {
 		if (email == null || publicId == null) {
-			throw new RuntimeException("Invalid credentials");
+			throw new BadRequestException("Invalid credentials");
 		}
 
 		// Converting String -> UUID -> Byte Array (Because MYSQL store UUID in form of

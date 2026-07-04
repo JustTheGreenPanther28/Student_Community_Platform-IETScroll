@@ -57,7 +57,7 @@ public class LostItemController {
 
 		Result result = lostItemService.uploadLostItem(authentication.getName(), lostItemDTO, image);
 
-		ResponseEntity<Result> finalResult = new ResponseEntity<>(result, HttpStatusCode.valueOf(200));
+		ResponseEntity<Result> finalResult = new ResponseEntity<>(result, HttpStatusCode.valueOf(201));
 		return finalResult;
 	}
 

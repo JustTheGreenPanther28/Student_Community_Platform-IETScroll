@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ietscroll.entity.OTPEntity;
 import com.ietscroll.entity.UserEntity;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.ResourceNotFoundException;
 import com.ietscroll.repository.OTPRepository;
 import com.ietscroll.repository.UserRepository;
 import com.ietscroll.response.Result;
@@ -52,16 +54,16 @@ public class OTPServiceImpl implements OTPService {
 		UserEntity exist = userRepo.findByEmail(email);
 
 		if(exist==null) {
-			throw new RuntimeException("User doesn't exist");
+			throw new ResourceNotFoundException("User doesn't exist");
 		}
 		
 		if (otps==null || otps.isEmpty()) {
-			throw new RuntimeException("Incorrect email or OTP expired!");
+			throw new BadRequestException("Incorrect email or OTP expired!");
 		}
 
 		OTPEntity otp = otps.get(otps.size() - 1);
 		if (otp.getExpirationTime().isBefore(LocalDateTime.now())) {
-		    throw new RuntimeException("OTP expired");
+		    throw new BadRequestException("OTP expired");
 		}
 
 		if (otpGivenByUser == otp.getOtp()) {

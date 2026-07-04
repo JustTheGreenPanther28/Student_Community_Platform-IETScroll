@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ietscroll.dto.LostItemDTO;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.LimitExceededException;
 import com.ietscroll.dto.PagedResponseDTO;
 import com.ietscroll.entity.LostItemEntity;
 import com.ietscroll.general.enums.LostItemStatus;
@@ -47,19 +49,19 @@ public class LostItemServiceImpl implements LostItemService {
 	public Result uploadLostItem(String email, LostItemDTO lostItemDTO, MultipartFile image) throws IOException {
 
 		if (lostItemDTO == null) {
-			throw new RuntimeException("Please give valid input");
+			throw new BadRequestException("Please give valid input");
 		}
 
 		if (image == null || image.isEmpty()) {
-			throw new RuntimeException("Add Image of the lost product!");
+			throw new BadRequestException("Add Image of the lost product!");
 		}
 
 		if (!ALLOWED_TYPES.contains(image.getContentType())) {
-			throw new RuntimeException("Kindly add valid image type!");
+			throw new BadRequestException("Kindly add valid image type!");
 		}
 
 		if (lostItemRepo.countRequestByUser(email) >= 2) {
-			throw new RuntimeException(
+			throw new LimitExceededException(
 					"Maximum lost-item request a user can have is two, kindly close other request to create a new request.");
 		}
 
@@ -111,7 +113,7 @@ public class LostItemServiceImpl implements LostItemService {
 
 	public Result closeLostItem(String email, String publicId) {
 		if (email == null || publicId == null) {
-			throw new RuntimeException("Invalid credentials");
+			throw new BadRequestException("Invalid credentials");
 		}
 
 		UUID publicUUID = UUID.fromString(publicId);

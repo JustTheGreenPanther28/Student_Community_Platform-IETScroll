@@ -1,5 +1,7 @@
 package com.ietscroll.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,7 +34,7 @@ public class UserController {
 
 	@Operation(summary = "Register user", description = "Registers a new user using institute email and sends OTP for verification.")
 	@PostMapping("/register")
-	public UserResponse register(@Valid @RequestBody UserRegisterRequest userDetail) {
+	public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest userDetail) {
 
 		UserDTO userDetailDTO = new UserDTO();
 		userDetailDTO.setBranch(userDetail.branch());
@@ -43,10 +45,11 @@ public class UserController {
 		userDetailDTO.setUsername(userDetail.username());
 		userDetailDTO.setYearOfPassout(userDetail.yearOfPassout());
 		UserDTO createdUserDetailDTO = userService.register(userDetailDTO);
-		return new UserResponse(createdUserDetailDTO.getPublicUserId(), createdUserDetailDTO.getUsername(),
-				createdUserDetailDTO.getEmail(), createdUserDetailDTO.getFullName(),
-				createdUserDetailDTO.getYearOfPassout(), createdUserDetailDTO.getCourse(),
-				createdUserDetailDTO.getBranch());
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(new UserResponse(createdUserDetailDTO.getPublicUserId(), createdUserDetailDTO.getUsername(),
+						createdUserDetailDTO.getEmail(), createdUserDetailDTO.getFullName(),
+						createdUserDetailDTO.getYearOfPassout(), createdUserDetailDTO.getCourse(),
+						createdUserDetailDTO.getBranch()));
 	}
 
 	@Operation(summary = "Get user profile", description = "Fetch authenticated user's profile details.")
