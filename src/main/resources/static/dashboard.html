@@ -12,6 +12,12 @@
 		href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap"
 		rel="stylesheet">
 
+	<script>
+		if (!localStorage.getItem('iet_token')) {
+			window.location.replace('login.html');
+		}
+	</script>
+
 	<style>
 		:root {
 			--bg-main: #0b1120;
@@ -27,7 +33,9 @@
 			--warning: #f59e0b;
 		}
 
-		* { box-sizing: border-box; }
+		* {
+			box-sizing: border-box;
+		}
 
 		body {
 			background: var(--bg-main);
@@ -60,7 +68,12 @@
 			color: var(--accent);
 		}
 
-		.nav-list { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+		.nav-list {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			overflow-y: auto;
+		}
 
 		.nav-link {
 			padding: 12px 20px;
@@ -80,12 +93,23 @@
 			font-size: 0.95rem;
 		}
 
-		.nav-link:hover, .nav-link.active { background: var(--accent-glow); color: var(--accent); }
+		.nav-link:hover,
+		.nav-link.active {
+			background: var(--accent-glow);
+			color: var(--accent);
+		}
 
-		.logout-container { margin-top: auto; padding-bottom: 20px; }
+		.logout-container {
+			margin-top: auto;
+			padding-bottom: 20px;
+		}
 
 		/* --- MAIN CONTENT --- */
-		.main-content { margin-left: var(--sidebar-width); padding: 40px; width: calc(100% - var(--sidebar-width)); }
+		.main-content {
+			margin-left: var(--sidebar-width);
+			padding: 40px;
+			width: calc(100% - var(--sidebar-width));
+		}
 
 		.page-header {
 			margin-bottom: 2.5rem;
@@ -126,14 +150,24 @@
 			margin-bottom: 4px;
 		}
 
-		.info-value { font-size: 1.1rem; font-weight: 600; word-break: break-all; }
+		.info-value {
+			font-size: 1.1rem;
+			font-weight: 600;
+			word-break: break-all;
+		}
 
-		.section { display: none; }
-		.section.active { display: block; }
+		.section {
+			display: none;
+		}
+
+		.section.active {
+			display: block;
+		}
 
 		/* --- FORMS --- */
-		.form-control-dark, .form-select-dark {
-			background: rgba(255,255,255,0.04);
+		.form-control-dark,
+		.form-select-dark {
+			background: rgba(255, 255, 255, 0.04);
 			border: 1px solid var(--border);
 			color: #e2e8f0;
 			border-radius: 10px;
@@ -141,12 +175,17 @@
 			width: 100%;
 			font-family: inherit;
 		}
-		.form-control-dark:focus, .form-select-dark:focus {
+
+		.form-control-dark:focus,
+		.form-select-dark:focus {
 			outline: none;
 			border-color: var(--accent);
-			background: rgba(255,255,255,0.06);
+			background: rgba(255, 255, 255, 0.06);
 		}
-		.form-control-dark::placeholder { color: #475569; }
+
+		.form-control-dark::placeholder {
+			color: #475569;
+		}
 
 		label.field-label {
 			font-size: 0.75rem;
@@ -167,8 +206,15 @@
 			cursor: pointer;
 			transition: background 0.2s;
 		}
-		.btn-accent:hover { background: #2563eb; }
-		.btn-accent:disabled { opacity: 0.5; cursor: not-allowed; }
+
+		.btn-accent:hover {
+			background: #2563eb;
+		}
+
+		.btn-accent:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
 
 		.btn-outline-accent {
 			background: transparent;
@@ -180,33 +226,42 @@
 			cursor: pointer;
 			font-size: 0.85rem;
 		}
-		.btn-outline-accent:hover { background: var(--accent-glow); }
+
+		.btn-outline-accent:hover {
+			background: var(--accent-glow);
+		}
 
 		.btn-danger-soft {
-			background: rgba(239,68,68,0.12);
-			border: 1px solid rgba(239,68,68,0.3);
+			background: rgba(239, 68, 68, 0.12);
+			border: 1px solid rgba(239, 68, 68, 0.3);
 			color: #fca5a5;
 			padding: 6px 14px;
 			border-radius: 8px;
 			font-size: 0.8rem;
 			cursor: pointer;
 		}
-		.btn-danger-soft:hover { background: rgba(239,68,68,0.2); }
+
+		.btn-danger-soft:hover {
+			background: rgba(239, 68, 68, 0.2);
+		}
 
 		.btn-success-soft {
-			background: rgba(34,197,94,0.12);
-			border: 1px solid rgba(34,197,94,0.3);
+			background: rgba(34, 197, 94, 0.12);
+			border: 1px solid rgba(34, 197, 94, 0.3);
 			color: #86efac;
 			padding: 6px 14px;
 			border-radius: 8px;
 			font-size: 0.8rem;
 			cursor: pointer;
 		}
-		.btn-success-soft:hover { background: rgba(34,197,94,0.2); }
+
+		.btn-success-soft:hover {
+			background: rgba(34, 197, 94, 0.2);
+		}
 
 		/* --- ITEM CARDS --- */
 		.item-card {
-			background: rgba(255,255,255,0.03);
+			background: rgba(255, 255, 255, 0.03);
 			border: 1px solid var(--border);
 			border-radius: 14px;
 			padding: 16px;
@@ -215,17 +270,43 @@
 			gap: 14px;
 			align-items: flex-start;
 		}
-		.item-card img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
-		.item-card .item-title { font-weight: 700; margin-bottom: 2px; }
-		.item-card .item-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; }
-		.item-card .item-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+		.item-card img {
+			width: 70px;
+			height: 70px;
+			border-radius: 10px;
+			object-fit: cover;
+			flex-shrink: 0;
+		}
+
+		.item-card .item-title {
+			font-weight: 700;
+			margin-bottom: 2px;
+		}
+
+		.item-card .item-desc {
+			color: var(--text-muted);
+			font-size: 0.85rem;
+			margin-bottom: 6px;
+		}
+
+		.item-card .item-meta {
+			font-size: 0.75rem;
+			color: var(--text-muted);
+		}
 
 		.empty-state {
 			text-align: center;
 			padding: 40px 20px;
 			color: var(--text-muted);
 		}
-		.empty-state i { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5; }
+
+		.empty-state i {
+			font-size: 2rem;
+			display: block;
+			margin-bottom: 10px;
+			opacity: 0.5;
+		}
 
 		.tab-row {
 			display: flex;
@@ -234,6 +315,7 @@
 			border-bottom: 1px solid var(--border);
 			flex-wrap: wrap;
 		}
+
 		.tab-btn {
 			background: none;
 			border: none;
@@ -244,7 +326,11 @@
 			font-weight: 600;
 			border-bottom: 2px solid transparent;
 		}
-		.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+		.tab-btn.active {
+			color: var(--accent);
+			border-bottom-color: var(--accent);
+		}
 
 		.toast-msg {
 			position: fixed;
@@ -259,11 +345,28 @@
 			max-width: 320px;
 			font-size: 0.9rem;
 		}
-		.toast-msg.show { display: block; }
-		.toast-msg.success { border-color: rgba(34,197,94,0.4); color: #86efac; }
-		.toast-msg.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
 
-		.pagination-row { display: flex; gap: 8px; justify-content: center; margin-top: 1.5rem; align-items: center; }
+		.toast-msg.show {
+			display: block;
+		}
+
+		.toast-msg.success {
+			border-color: rgba(34, 197, 94, 0.4);
+			color: #86efac;
+		}
+
+		.toast-msg.error {
+			border-color: rgba(239, 68, 68, 0.4);
+			color: #fca5a5;
+		}
+
+		.pagination-row {
+			display: flex;
+			gap: 8px;
+			justify-content: center;
+			margin-top: 1.5rem;
+			align-items: center;
+		}
 
 		.badge-status {
 			font-size: 0.68rem;
@@ -273,26 +376,61 @@
 			letter-spacing: 0.04em;
 			font-weight: 700;
 		}
-		.badge-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
-		.badge-accepted { background: rgba(34,197,94,0.15); color: var(--success); }
-		.badge-rejected { background: rgba(239,68,68,0.15); color: var(--danger); }
-		.badge-status.me-1 { margin-right: 6px; }
+
+		.badge-pending {
+			background: rgba(245, 158, 11, 0.15);
+			color: var(--warning);
+		}
+
+		.badge-accepted {
+			background: rgba(34, 197, 94, 0.15);
+			color: var(--success);
+		}
+
+		.badge-rejected {
+			background: rgba(239, 68, 68, 0.15);
+			color: var(--danger);
+		}
+
+		.badge-status.me-1 {
+			margin-right: 6px;
+		}
 
 		.spinner-inline {
 			display: inline-block;
-			width: 16px; height: 16px;
-			border: 2px solid rgba(255,255,255,0.2);
+			width: 16px;
+			height: 16px;
+			border: 2px solid rgba(255, 255, 255, 0.2);
 			border-top-color: var(--accent);
 			border-radius: 50%;
 			animation: spin 0.7s linear infinite;
 		}
-		@keyframes spin { to { transform: rotate(360deg); } }
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
 
 		@media (max-width: 991px) {
-			.sidebar { transform: translateX(-100%); }
-			.sidebar.open { transform: translateX(0); }
-			.main-content { margin-left: 0; width: 100%; padding: 20px; padding-top: 80px; }
-			.topbar { display: flex !important; }
+			.sidebar {
+				transform: translateX(-100%);
+			}
+
+			.sidebar.open {
+				transform: translateX(0);
+			}
+
+			.main-content {
+				margin-left: 0;
+				width: 100%;
+				padding: 20px;
+				padding-top: 80px;
+			}
+
+			.topbar {
+				display: flex !important;
+			}
 		}
 	</style>
 </head>
@@ -309,15 +447,22 @@
 		<nav class="sidebar" id="sidebar">
 			<div class="sidebar-brand">IET SCROLL</div>
 			<div class="nav-list">
-				<a href="#" onclick="show('dashboard', this); return false;" class="nav-link active"><i class="bi bi-grid-fill"></i> Dashboard</a>
-				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i class="bi bi-person-circle"></i> Profile</a>
-				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search"></i> Lost Items</a>
-				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-check-lg"></i> Found Items</a>
-				<a href="#" onclick="show('team', this); return false;" class="nav-link"><i class="bi bi-people"></i> Team Finder</a>
-				<a href="#" onclick="show('resume', this); return false;" class="nav-link"><i class="bi bi-file-earmark-text"></i> Resume Checker</a>
+				<a href="#" onclick="show('dashboard', this); return false;" class="nav-link active"><i
+						class="bi bi-grid-fill"></i> Dashboard</a>
+				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i
+						class="bi bi-person-circle"></i> Profile</a>
+				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search"></i>
+					Lost Items</a>
+				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-check-lg"></i>
+					Found Items</a>
+				<a href="#" onclick="show('team', this); return false;" class="nav-link"><i class="bi bi-people"></i>
+					Team Finder</a>
+				<a href="#" onclick="show('resume', this); return false;" class="nav-link"><i
+						class="bi bi-file-earmark-text"></i> Resume Checker</a>
 				<div class="logout-container">
 					<hr class="mx-3 opacity-10">
-					<a href="#" onclick="logout(); return false;" class="nav-link text-danger"><i class="bi bi-box-arrow-left"></i> Logout</a>
+					<a href="#" onclick="logout(); return false;" class="nav-link text-danger"><i
+							class="bi bi-box-arrow-left"></i> Logout</a>
 				</div>
 			</div>
 		</nav>
@@ -395,7 +540,8 @@
 						<div class="stat-card">
 							<h6 class="fw-bold mb-3">Update Username</h6>
 							<label class="field-label">New Username</label>
-							<input type="text" class="form-control-dark mb-3" id="newUsernameInput" placeholder="e.g. vedant28">
+							<input type="text" class="form-control-dark mb-3" id="newUsernameInput"
+								placeholder="e.g. vedant28">
 							<button class="btn-accent" onclick="updateUsername()">Save Username</button>
 						</div>
 					</div>
@@ -403,7 +549,8 @@
 						<div class="stat-card">
 							<h6 class="fw-bold mb-3">Update Full Name</h6>
 							<label class="field-label">New Full Name</label>
-							<input type="text" class="form-control-dark mb-3" id="newFullnameInput" placeholder="e.g. Vedant Maheshwari">
+							<input type="text" class="form-control-dark mb-3" id="newFullnameInput"
+								placeholder="e.g. Vedant Maheshwari">
 							<button class="btn-accent" onclick="updateFullname()">Save Full Name</button>
 						</div>
 					</div>
@@ -413,9 +560,12 @@
 			<!-- ============ LOST ITEMS ============ -->
 			<div id="lost" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="lost-browse" onclick="switchTab('lost', 'lost-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')">My Reports</button>
-					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')">Report Item</button>
+					<button class="tab-btn active" data-tab="lost-browse"
+						onclick="switchTab('lost', 'lost-browse')">Browse All</button>
+					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')">My
+						Reports</button>
+					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')">Report
+						Item</button>
 				</div>
 
 				<div id="lost-browse" class="tab-pane">
@@ -437,7 +587,8 @@
 						<div class="row g-3">
 							<div class="col-md-6">
 								<label class="field-label">Item Name</label>
-								<input type="text" class="form-control-dark" id="lostItemName" placeholder="e.g. Blue water bottle">
+								<input type="text" class="form-control-dark" id="lostItemName"
+									placeholder="e.g. Blue water bottle">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Prize / Reward (optional)</label>
@@ -445,18 +596,21 @@
 							</div>
 							<div class="col-12">
 								<label class="field-label">Description</label>
-								<textarea class="form-control-dark" id="lostItemDesc" rows="3" placeholder="Where and when you lost it, distinguishing marks, etc."></textarea>
+								<textarea class="form-control-dark" id="lostItemDesc" rows="3"
+									placeholder="Where and when you lost it, distinguishing marks, etc."></textarea>
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Predicted Location</label>
-								<input type="text" class="form-control-dark" id="lostItemLocation" placeholder="e.g. Library, 2nd floor">
+								<input type="text" class="form-control-dark" id="lostItemLocation"
+									placeholder="e.g. Library, 2nd floor">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Image</label>
 								<input type="file" class="form-control-dark" id="lostItemImage" accept="image/*">
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn">Submit Report</button>
+								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn">Submit
+									Report</button>
 							</div>
 						</div>
 					</div>
@@ -466,9 +620,12 @@
 			<!-- ============ FOUND ITEMS ============ -->
 			<div id="found" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="found-browse" onclick="switchTab('found', 'found-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')">My Reports</button>
-					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')">Report Item</button>
+					<button class="tab-btn active" data-tab="found-browse"
+						onclick="switchTab('found', 'found-browse')">Browse All</button>
+					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')">My
+						Reports</button>
+					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')">Report
+						Item</button>
 				</div>
 
 				<div id="found-browse" class="tab-pane">
@@ -490,22 +647,26 @@
 						<div class="row g-3">
 							<div class="col-md-6">
 								<label class="field-label">Item Name</label>
-								<input type="text" class="form-control-dark" id="foundItemName" placeholder="e.g. Black umbrella">
+								<input type="text" class="form-control-dark" id="foundItemName"
+									placeholder="e.g. Black umbrella">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Predicted Location</label>
-								<input type="text" class="form-control-dark" id="foundItemLocation" placeholder="e.g. Canteen">
+								<input type="text" class="form-control-dark" id="foundItemLocation"
+									placeholder="e.g. Canteen">
 							</div>
 							<div class="col-12">
 								<label class="field-label">Description</label>
-								<textarea class="form-control-dark" id="foundItemDesc" rows="3" placeholder="Where and when you found it, distinguishing marks, etc."></textarea>
+								<textarea class="form-control-dark" id="foundItemDesc" rows="3"
+									placeholder="Where and when you found it, distinguishing marks, etc."></textarea>
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Image</label>
 								<input type="file" class="form-control-dark" id="foundItemImage" accept="image/*">
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn">Submit Report</button>
+								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn">Submit
+									Report</button>
 							</div>
 						</div>
 					</div>
@@ -515,11 +676,16 @@
 			<!-- ============ TEAM FINDER ============ -->
 			<div id="team" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="team-browse" onclick="switchTab('team', 'team-browse')">Browse Teams</button>
-					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')">My Team</button>
-					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')">Create Team</button>
-					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')">Join Requests</button>
-					<button class="tab-btn" data-tab="team-applications" onclick="switchTab('team', 'team-applications')">My Applications</button>
+					<button class="tab-btn active" data-tab="team-browse"
+						onclick="switchTab('team', 'team-browse')">Browse Teams</button>
+					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')">My
+						Team</button>
+					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')">Create
+						Team</button>
+					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')">Join
+						Requests</button>
+					<button class="tab-btn" data-tab="team-applications"
+						onclick="switchTab('team', 'team-applications')">My Applications</button>
 				</div>
 
 				<div id="team-browse" class="tab-pane">
@@ -541,7 +707,8 @@
 						<div class="row g-3">
 							<div class="col-12">
 								<label class="field-label">Team Purpose</label>
-								<textarea class="form-control-dark" id="teamPurpose" rows="3" placeholder="What is this team for? e.g. Looking for 2 backend devs for a Smart India Hackathon project on campus safety."></textarea>
+								<textarea class="form-control-dark" id="teamPurpose" rows="3"
+									placeholder="What is this team for? e.g. Looking for 2 backend devs for a Smart India Hackathon project on campus safety."></textarea>
 								<div class="text-muted small mt-1">Minimum 10 characters, maximum 300.</div>
 							</div>
 							<div class="col-md-6">
@@ -556,7 +723,8 @@
 								</select>
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn">Create Team</button>
+								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn">Create
+									Team</button>
 							</div>
 						</div>
 					</div>
@@ -578,11 +746,13 @@
 			<div id="resume" class="section">
 				<div class="stat-card">
 					<h6 class="fw-bold mb-3">AI Resume Quality Check</h6>
-					<p class="text-muted small mb-3">Upload your resume (PDF or DOCX) to get an AI-generated quality score, missing keywords, and improvement suggestions.</p>
+					<p class="text-muted small mb-3">Upload your resume (PDF or DOCX) to get an AI-generated quality
+						score, missing keywords, and improvement suggestions.</p>
 					<div class="row g-3 mb-3">
 						<div class="col-md-6">
 							<label class="field-label">Target Role</label>
-							<input type="text" class="form-control-dark" id="resumeRole" placeholder="e.g. Backend Developer">
+							<input type="text" class="form-control-dark" id="resumeRole"
+								placeholder="e.g. Backend Developer">
 						</div>
 						<div class="col-md-6">
 							<label class="field-label">Years of Experience</label>
@@ -625,13 +795,13 @@
 		}
 
 		// Central fetch wrapper. jsonBody=true adds Content-Type + JSON.stringify.
-		async function api(path, { method = 'GET', jsonBody, formData, params } = {}) {
+		async function api(path, {method = 'GET', jsonBody, formData, params} = {}) {
 			let url = BASE + path;
 			if (params) {
 				const qs = new URLSearchParams(params).toString();
 				url += (url.includes('?') ? '&' : '?') + qs;
 			}
-			const headers = { 'Authorization': 'Bearer ' + token };
+			const headers = {'Authorization': 'Bearer ' + token};
 			let body;
 			if (jsonBody !== undefined) {
 				headers['Content-Type'] = 'application/json';
@@ -640,7 +810,7 @@
 				body = formData; // browser sets multipart boundary itself
 			}
 
-			const res = await fetch(url, { method, headers, body });
+			const res = await fetch(url, {method, headers, body});
 
 			if (res.status === 401) {
 				logout();
@@ -651,7 +821,7 @@
 				try {
 					const errBody = await res.json();
 					msg = errBody.message || errBody.error || msg;
-				} catch {}
+				} catch { }
 				throw new Error(msg);
 			}
 			const text = await res.text();
@@ -711,7 +881,7 @@
 			const val = document.getElementById('newUsernameInput').value.trim();
 			if (!val) return toast('Enter a username first', 'error');
 			try {
-				await api('/api/v1/user/username/' + encodeURIComponent(val), { method: 'PATCH' });
+				await api('/api/v1/user/username/' + encodeURIComponent(val), {method: 'PATCH'});
 				toast('Username updated');
 				document.getElementById('newUsernameInput').value = '';
 				loadProfile();
@@ -724,7 +894,7 @@
 			const val = document.getElementById('newFullnameInput').value.trim();
 			if (!val) return toast('Enter a full name first', 'error');
 			try {
-				await api('/api/v1/user/fullname/' + encodeURIComponent(val), { method: 'PATCH' });
+				await api('/api/v1/user/fullname/' + encodeURIComponent(val), {method: 'PATCH'});
 				toast('Full name updated');
 				document.getElementById('newFullnameInput').value = '';
 				loadProfile();
@@ -756,7 +926,7 @@
 
 		/* ============ LOST ITEMS ============ */
 		let lostPage = 0;
-		function renderItemCard(item, { nameKey, publicIdKey, imageKey, locationKey, extra, onClose }) {
+		function renderItemCard(item, {nameKey, publicIdKey, imageKey, locationKey, extra, onClose}) {
 			const wrap = document.createElement('div');
 			wrap.className = 'item-card';
 			const img = item[imageKey]
@@ -781,7 +951,7 @@
 			const container = document.getElementById('lostBrowseList');
 			container.innerHTML = '<div class="spinner-inline"></div>';
 			try {
-				const res = await api('/api/v1/lost-item', { params: { page: lostPage, size: 10 } });
+				const res = await api('/api/v1/lost-item', {params: {page: lostPage, size: 10}});
 				const items = res.content || res.items || [];
 				container.innerHTML = '';
 				if (!items.length) {
@@ -830,7 +1000,7 @@
 
 		async function closeLostItem(publicId) {
 			try {
-				await api('/api/v1/lost-item/close', { method: 'PATCH', params: { lostItemId: publicId } });
+				await api('/api/v1/lost-item/close', {method: 'PATCH', params: {lostItemId: publicId}});
 				toast('Lost item request closed');
 				loadLostMine();
 				loadDashboardStats();
@@ -850,7 +1020,7 @@
 				return toast('Item name, description, and image are required', 'error');
 			}
 
-			const data = { lostItemname: name, description: desc, predictedLocation: location, prize: prize };
+			const data = {lostItemname: name, description: desc, predictedLocation: location, prize: prize};
 			const fd = new FormData();
 			fd.append('data', JSON.stringify(data));
 			fd.append('image', imageFile);
@@ -859,7 +1029,7 @@
 			btn.disabled = true;
 			btn.innerText = 'Submitting…';
 			try {
-				await api('/api/v1/lost-item', { method: 'POST', formData: fd });
+				await api('/api/v1/lost-item', {method: 'POST', formData: fd});
 				toast('Lost item reported successfully');
 				document.getElementById('lostItemName').value = '';
 				document.getElementById('lostItemDesc').value = '';
@@ -883,7 +1053,7 @@
 			const container = document.getElementById('foundBrowseList');
 			container.innerHTML = '<div class="spinner-inline"></div>';
 			try {
-				const res = await api('/api/v1/found-item', { params: { page: foundPage, size: 10 } });
+				const res = await api('/api/v1/found-item', {params: {page: foundPage, size: 10}});
 				const items = res.content || res.items || [];
 				container.innerHTML = '';
 				if (!items.length) {
@@ -931,7 +1101,7 @@
 
 		async function closeFoundItem(publicId) {
 			try {
-				await api('/api/v1/found-item/close', { method: 'PATCH', params: { foundItemId: publicId } });
+				await api('/api/v1/found-item/close', {method: 'PATCH', params: {foundItemId: publicId}});
 				toast('Found item request closed');
 				loadFoundMine();
 				loadDashboardStats();
@@ -950,7 +1120,7 @@
 				return toast('Item name, description, and image are required', 'error');
 			}
 
-			const data = { foundItemname: name, description: desc, predictedLocation: location };
+			const data = {foundItemname: name, description: desc, predictedLocation: location};
 			const fd = new FormData();
 			fd.append('data', JSON.stringify(data));
 			fd.append('image', imageFile);
@@ -959,7 +1129,7 @@
 			btn.disabled = true;
 			btn.innerText = 'Submitting…';
 			try {
-				await api('/api/v1/found-item', { method: 'POST', formData: fd });
+				await api('/api/v1/found-item', {method: 'POST', formData: fd});
 				toast('Found item reported successfully');
 				document.getElementById('foundItemName').value = '';
 				document.getElementById('foundItemDesc').value = '';
@@ -982,7 +1152,7 @@
 			const container = document.getElementById('teamBrowseList');
 			container.innerHTML = '<div class="spinner-inline"></div>';
 			try {
-				const res = await api('/api/v1/team', { params: { page: teamPage, size: 10 } });
+				const res = await api('/api/v1/team', {params: {page: teamPage, size: 10}});
 				const teams = res.content || res.items || [];
 				container.innerHTML = '';
 				if (!teams.length) {
@@ -1057,7 +1227,7 @@
 			btn.disabled = true;
 			btn.innerText = 'Creating…';
 			try {
-				await api('/api/v1/team', { method: 'POST', jsonBody: { purpose: purpose, teamSize: Number(size), privacy: privacy } });
+				await api('/api/v1/team', {method: 'POST', jsonBody: {purpose: purpose, teamSize: Number(size), privacy: privacy}});
 				toast('Team created');
 				document.getElementById('teamPurpose').value = '';
 				loadDashboardStats();
@@ -1072,7 +1242,7 @@
 
 		async function closeTeam() {
 			try {
-				await api('/api/v1/team/close', { method: 'PATCH' });
+				await api('/api/v1/team/close', {method: 'PATCH'});
 				toast('Team closed');
 				loadTeamMine();
 				loadDashboardStats();
@@ -1085,7 +1255,7 @@
 			const size = document.getElementById('updateTeamSizeInput').value;
 			if (size < 3) return toast('Minimum team size is 3', 'error');
 			try {
-				await api('/api/v1/team/team-size', { method: 'PATCH', params: { teamSize: size } });
+				await api('/api/v1/team/team-size', {method: 'PATCH', params: {teamSize: size}});
 				toast('Team size updated');
 				loadTeamMine();
 			} catch (e) {
@@ -1101,7 +1271,7 @@
 
 		async function submitJoinRequest(teamPublicId, message) {
 			try {
-				await api('/api/v1/request-team', { method: 'POST', jsonBody: { teamId: teamPublicId, message: message } });
+				await api('/api/v1/request-team', {method: 'POST', jsonBody: {teamId: teamPublicId, message: message}});
 				toast('Join request sent');
 			} catch (e) {
 				toast(e.message, 'error');
@@ -1114,7 +1284,7 @@
 			reqContainer.innerHTML = '<div class="spinner-inline"></div>';
 			memContainer.innerHTML = '';
 			try {
-				const requests = await api('/api/v1/request-team/requests', { params: { status: 'PENDING' } });
+				const requests = await api('/api/v1/request-team/requests', {params: {status: 'PENDING'}});
 				reqContainer.innerHTML = '';
 				if (!requests || !requests.length) {
 					reqContainer.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i>No pending join requests.</div>`;
@@ -1170,7 +1340,7 @@
 
 		async function respondToRequest(email, action) {
 			try {
-				await api(`/api/v1/request-team/${action}/${encodeURIComponent(email)}`, { method: 'PATCH' });
+				await api(`/api/v1/request-team/${action}/${encodeURIComponent(email)}`, {method: 'PATCH'});
 				toast(action === 'accept' ? 'Request accepted' : 'Request rejected');
 				loadTeamRequests();
 			} catch (e) {
@@ -1180,7 +1350,7 @@
 
 		async function removeMember(email) {
 			try {
-				await api(`/api/v1/request-team/remove/${encodeURIComponent(email)}`, { method: 'PATCH' });
+				await api(`/api/v1/request-team/remove/${encodeURIComponent(email)}`, {method: 'PATCH'});
 				toast('Member removed');
 				loadTeamRequests();
 			} catch (e) {
@@ -1235,7 +1405,7 @@
 			btn.innerText = 'Analyzing…';
 			resultBox.innerHTML = '';
 			try {
-				const result = await api('/api/v1/ietscroll/resume/quality', { method: 'POST', formData: fd, params: { role: role, experience: experience } });
+				const result = await api('/api/v1/ietscroll/resume/quality', {method: 'POST', formData: fd, params: {role: role, experience: experience}});
 				const skillsMatched = (result.topFiveSkillsMatched || []).map(s => `<span class="badge-status badge-accepted me-1 mb-1 d-inline-block">${s}</span>`).join('');
 				const keywordsMissed = (result.topTenKeywordsMissed || []).map(s => `<span class="badge-status badge-pending me-1 mb-1 d-inline-block">${s}</span>`).join('');
 				resultBox.innerHTML = `
