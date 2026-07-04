@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
-public class Exceptions {
+public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class )
 	public ResponseEntity<Object> handleOtherException(Exception exception, WebRequest request) {

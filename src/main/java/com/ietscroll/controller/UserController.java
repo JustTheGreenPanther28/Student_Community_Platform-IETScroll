@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 @Tag(name = "User Management", description = "Handles user registration, profile retrieval, and updates. Restricted to institute email.")
 public class UserController {
 
-	private UserService userService;
+	private final UserService userService;
 
 	public UserController(UserService userService) {
 		this.userService = userService;

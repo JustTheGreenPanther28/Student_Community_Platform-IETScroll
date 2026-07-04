@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Resume Analysis", description = "AI-powered resume evaluation based on role and experience.")
 public class ResumeCheckerController {
 
-	private ResumeCheckerService resumeCheckerService;
+	private final ResumeCheckerService resumeCheckerService;
 
 	public ResumeCheckerController(ResumeCheckerService resumeCheckerService) {
 		this.resumeCheckerService = resumeCheckerService;

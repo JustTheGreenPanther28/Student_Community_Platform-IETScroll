@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "OTP & Verification", description = "Handles email-based OTP verification for user authentication.")
 public class OTPController {
 
-	private OTPService otpService;
+	private final OTPService otpService;
 
 	public OTPController(OTPService otpService) {
 		this.otpService = otpService;
