@@ -139,5 +139,5 @@ OWNER : (https://github.com/JustTheGreenPanther28)
 
 ## Links
 
-- API Documentation: [Swagger UI](https://iet-scroll.onrender.com/swagger-ui/index.html#/)
-- Website (coming soon): [https://iet-scroll.onrender.com/](https://iet-scroll.onrender.com/)
+- API Documentation: [Swagger UI](https://student-community-platform-ietscroll.onrender.com/swagger-ui/index.html#/)
+- Website : [IET SCROLL](https://student-community-platform-ietscroll.onrender.com/)
