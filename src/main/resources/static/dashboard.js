@@ -7,10 +7,6 @@ if (!token) {
     throw new Error('Not authenticated — redirecting to login.');
 }
 
-localStorage.removeItem('iet_token');
-window.location.replace('login.html');
-
-
 function toast(msg, type = 'success') {
     const el = document.getElementById('toast');
     el.textContent = msg;
