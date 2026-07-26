@@ -201,7 +201,9 @@ public class TeamJoinRequestServiceImpl implements TeamRequestService {
 		List<ApplicationResponse> applications = new ArrayList<>();
 
 		for (TeamJoinRequest joinRequest : joinRequests) {
-
+			if ("OWNER".equals(joinRequest.getMessage())) {
+				continue;
+			}
 			ApplicationResponse application = new ApplicationResponse();
 			application.setRequestedAt(joinRequest.getRequestedAt());
 			application.setStatus(joinRequest.getStatus());

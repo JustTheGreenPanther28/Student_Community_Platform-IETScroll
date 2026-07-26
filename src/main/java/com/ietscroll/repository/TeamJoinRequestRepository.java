@@ -15,20 +15,25 @@ import com.ietscroll.general.enums.TeamRequestStatus;
 @Repository
 public interface TeamJoinRequestRepository extends JpaRepository<TeamJoinRequest, Integer> {
 
-    @Query(value="SELECT COUNT(*) FROM team_join_requests WHERE applicant_email=?1 AND team_id=?2", nativeQuery=true)
-    int existsByEmailAndTeamPublicId(String email, UUID publicId);
+	@Query(value = "SELECT COUNT(*) FROM team_join_requests WHERE applicant_email=?1 AND team_id=?2", nativeQuery = true)
+	int existsByEmailAndTeamPublicId(String email, UUID publicId);
 
-    List<TeamJoinRequest> findByRequestedTeam_CreatedBy_EmailAndStatus(String email, TeamRequestStatus status);
+	List<TeamJoinRequest> findByRequestedTeam_CreatedBy_EmailAndStatus(String email, TeamRequestStatus status);
 
-    List<TeamJoinRequest> findByApplicant_Email(String applicantEmail);
+	List<TeamJoinRequest> findByApplicant_Email(String applicantEmail);
 
-    @Transactional
-    @Modifying
-    @Query(value="UPDATE team_join_requests SET status=?1 WHERE status='WAIT' AND applicant_email=?2 AND team_id=?3", nativeQuery=true)
-    int changeStatusOfApplicant(String status, String applicantEmail, UUID teamId);
+	@Transactional
+	@Modifying
+	@Query(value = "UPDATE team_join_requests SET status=?1 WHERE status='WAIT' AND applicant_email=?2 AND team_id=?3", nativeQuery = true)
+	int changeStatusOfApplicant(String status, String applicantEmail, UUID teamId);
 
-    @Transactional
-    @Modifying
-    @Query(value="UPDATE team_join_requests SET status='REMOVED' WHERE status='ACCEPTED' AND applicant_email=?1 AND team_id=?2", nativeQuery=true)
-    int kickApplicant(String applicantEmail, UUID teamId);
+	@Transactional
+	@Modifying
+	@Query(value = "UPDATE team_join_requests SET status='REMOVED' WHERE status='ACCEPTED' AND applicant_email=?1 AND team_id=?2", nativeQuery = true)
+	int kickApplicant(String applicantEmail, UUID teamId);
+
+	@Transactional
+	@Modifying
+	@Query(value = "DELETE FROM team_join_requests WHERE team_id = ?1", nativeQuery = true)
+	int deleteByTeamPublicId(UUID teamPublicId);
 }

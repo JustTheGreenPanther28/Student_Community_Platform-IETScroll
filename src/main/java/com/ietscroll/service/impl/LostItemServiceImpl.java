@@ -37,8 +37,8 @@ public class LostItemServiceImpl implements LostItemService {
 	private final SightEngineService sightEngineService;
 	private final CloudinaryService cloudinaryService;
 
-	public LostItemServiceImpl(LostItemRepository lostItemRepo,
-			SightEngineService sightEngineService, CloudinaryService cloudinaryService) {
+	public LostItemServiceImpl(LostItemRepository lostItemRepo, SightEngineService sightEngineService,
+			CloudinaryService cloudinaryService) {
 		this.lostItemRepo = lostItemRepo;
 		this.sightEngineService = sightEngineService;
 		this.cloudinaryService = cloudinaryService;
@@ -68,7 +68,7 @@ public class LostItemServiceImpl implements LostItemService {
 		sightEngineService.checkImage(image);
 
 		// Map has details about uploaded image
-		Map<?,?> uploadedDetail = cloudinaryService.upload(image);
+		Map<?, ?> uploadedDetail = cloudinaryService.upload(image);
 		// Getting url from it
 		String url = (String) uploadedDetail.get("secure_url");
 
@@ -101,6 +101,7 @@ public class LostItemServiceImpl implements LostItemService {
 			lostItemDTO.setPublicIdOfLostRequest(lostItem.getPublicIdOfLostRequest());
 			lostItemDTO.setPrize(lostItem.getPrize());
 			lostItemDTO.setCreatedAt(lostItem.getCreatedAt());
+			lostItemDTO.setOwnerEmail(lostItem.getOwnerEmail());
 
 			lostItemsDTOs.add(lostItemDTO);
 		}
@@ -127,20 +128,20 @@ public class LostItemServiceImpl implements LostItemService {
 
 	@Override
 	public PagedResponseDTO<LostItemResponse> getAllLostItems(int page, int size) {
-	    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-	    Page<LostItemResponse> mapped = lostItemRepo.findByStatus(LostItemStatus.OPEN, pageable)
-	            .map(lostItem -> {
-	                LostItemResponse response = new LostItemResponse();
-	                response.setPublicIdOfLostRequest(lostItem.getPublicIdOfLostRequest());
-	                response.setLostItemname(lostItem.getLostItemname());
-	                response.setImageURLOfItem(lostItem.getImageURL());
-	                response.setPredictedLocation(lostItem.getPredictedLocation());
-	                response.setDescription(lostItem.getDescription());
-	                response.setPrize(lostItem.getPrize());
-	                response.setCreatedAt(lostItem.getCreatedAt());
-	                return response;
-	            });
-	    return PagedResponseDTO.from(mapped);
+		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+		Page<LostItemResponse> mapped = lostItemRepo.findByStatus(LostItemStatus.OPEN, pageable).map(lostItem -> {
+			LostItemResponse response = new LostItemResponse();
+			response.setPublicIdOfLostRequest(lostItem.getPublicIdOfLostRequest());
+			response.setLostItemname(lostItem.getLostItemname());
+			response.setImageURLOfItem(lostItem.getImageURL());
+			response.setPredictedLocation(lostItem.getPredictedLocation());
+			response.setDescription(lostItem.getDescription());
+			response.setPrize(lostItem.getPrize());
+			response.setCreatedAt(lostItem.getCreatedAt());
+			response.setContactTo(lostItem.getOwnerEmail());
+			return response;
+		});
+		return PagedResponseDTO.from(mapped);
 	}
 
 }

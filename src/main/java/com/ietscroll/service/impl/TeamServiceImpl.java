@@ -127,6 +127,13 @@ public class TeamServiceImpl implements TeamService {
 	@Transactional
 	public Result closeTeam(String ownerEmail) {
 
+		Team team = teamRepo.findByStatusAndCreatedBy_Email(TeamStatus.OPEN, ownerEmail);
+		if (team == null) {
+			throw new ResourceNotFoundException("You don't have an active team to close");
+		}
+
+		teamJoinRequestRepo.deleteByTeamPublicId(team.getPublicId());
+
 		int count = teamRepo.closeTeam(ownerEmail);
 
 		return count == 1 ? Result.SUCCESS : Result.FAILED;

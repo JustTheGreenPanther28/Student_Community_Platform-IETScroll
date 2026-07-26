@@ -69,7 +69,6 @@ body {
 
 .logout-container { margin-top: auto; padding-bottom: 20px; }
 
-/* --- MAIN CONTENT --- */
 .main-content { margin-left: var(--sidebar-width); padding: 40px; width: calc(100% - var(--sidebar-width)); }
 
 .page-header {
@@ -93,7 +92,10 @@ body {
 	flex-shrink: 0;
 }
 
-/* --- CARDS --- */
+#top-email{
+	color:#86efac;
+}
+
 .stat-card {
 	background: var(--card-bg);
 	border: 1px solid var(--border);
@@ -116,7 +118,6 @@ body {
 .section { display: none; }
 .section.active { display: block; }
 
-/* --- FORMS --- */
 .form-control-dark, .form-select-dark {
 	background: rgba(255,255,255,0.04);
 	border: 1px solid var(--border);
@@ -189,7 +190,6 @@ label.field-label {
 }
 .btn-success-soft:hover { background: rgba(34,197,94,0.2); }
 
-/* --- ITEM CARDS --- */
 .item-card {
 	background: rgba(255,255,255,0.03);
 	border: 1px solid var(--border);

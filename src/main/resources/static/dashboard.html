@@ -6,8 +6,6 @@
 	<title>IET Scroll | Dashboard</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<!-- Auth guard: runs first, before any CSS/content loads, so a logged-out
-	     visitor never sees the dashboard shell even for a split second. -->
 	<script>
 		if (!localStorage.getItem('iet_token')) {
 			window.location.replace('login.html');
@@ -21,6 +19,7 @@
 		rel="stylesheet">
 	<link rel="stylesheet" href="dashboard.css">
 </head>
+
 <body>
 	<div class="topbar d-none position-fixed top-0 w-100 p-3 bg-dark align-items-center justify-content-between"
 		style="z-index:199; height: 60px; border-bottom: 1px solid var(--border);">
@@ -33,15 +32,22 @@
 		<nav class="sidebar" id="sidebar">
 			<div class="sidebar-brand">IET SCROLL</div>
 			<div class="nav-list">
-				<a href="#" onclick="show('dashboard', this); return false;" class="nav-link active"><i class="bi bi-grid-fill"></i> Dashboard</a>
-				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i class="bi bi-person-circle"></i> Profile</a>
-				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search"></i> Lost Items</a>
-				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-check-lg"></i> Found Items</a>
-				<a href="#" onclick="show('team', this); return false;" class="nav-link"><i class="bi bi-people"></i> Team Finder</a>
-				<a href="#" onclick="show('resume', this); return false;" class="nav-link"><i class="bi bi-file-earmark-text"></i> Resume Checker</a>
+				<a href="#" onclick="show('dashboard', this); return false;" class="nav-link active"><i
+						class="bi bi-grid-fill"></i> Dashboard</a>
+				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i
+						class="bi bi-person-circle"></i> Profile</a>
+				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search"></i>
+					Lost Items</a>
+				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-check-lg"></i>
+					Found Items</a>
+				<a href="#" onclick="show('team', this); return false;" class="nav-link"><i class="bi bi-people"></i>
+					Team Finder</a>
+				<a href="#" onclick="show('resume', this); return false;" class="nav-link"><i
+						class="bi bi-file-earmark-text"></i> Resume Checker</a>
 				<div class="logout-container">
 					<hr class="mx-3 opacity-10">
-					<a href="#" onclick="logout(); return false;" class="nav-link text-danger"><i class="bi bi-box-arrow-left"></i> Logout</a>
+					<a href="#" onclick="logout(); return false;" class="nav-link text-danger"><i
+							class="bi bi-box-arrow-left"></i> Logout</a>
 				</div>
 			</div>
 		</nav>
@@ -119,7 +125,8 @@
 						<div class="stat-card">
 							<h6 class="fw-bold mb-3">Update Username</h6>
 							<label class="field-label">New Username</label>
-							<input type="text" class="form-control-dark mb-3" id="newUsernameInput" placeholder="e.g. vedant28">
+							<input type="text" class="form-control-dark mb-3" id="newUsernameInput"
+								placeholder="e.g. vedant28">
 							<button class="btn-accent" onclick="updateUsername()">Save Username</button>
 						</div>
 					</div>
@@ -127,7 +134,8 @@
 						<div class="stat-card">
 							<h6 class="fw-bold mb-3">Update Full Name</h6>
 							<label class="field-label">New Full Name</label>
-							<input type="text" class="form-control-dark mb-3" id="newFullnameInput" placeholder="e.g. Vedant Maheshwari">
+							<input type="text" class="form-control-dark mb-3" id="newFullnameInput"
+								placeholder="e.g. Vedant Maheshwari">
 							<button class="btn-accent" onclick="updateFullname()">Save Full Name</button>
 						</div>
 					</div>
@@ -137,9 +145,12 @@
 			<!-- ============ LOST ITEMS ============ -->
 			<div id="lost" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="lost-browse" onclick="switchTab('lost', 'lost-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')">My Reports</button>
-					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')">Report Item</button>
+					<button class="tab-btn active" data-tab="lost-browse"
+						onclick="switchTab('lost', 'lost-browse')">Browse All</button>
+					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')">My
+						Reports</button>
+					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')">Report
+						Item</button>
 				</div>
 
 				<div id="lost-browse" class="tab-pane">
@@ -161,7 +172,8 @@
 						<div class="row g-3">
 							<div class="col-md-6">
 								<label class="field-label">Item Name</label>
-								<input type="text" class="form-control-dark" id="lostItemName" placeholder="e.g. Blue water bottle">
+								<input type="text" class="form-control-dark" id="lostItemName"
+									placeholder="e.g. Blue water bottle">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Prize / Reward (optional)</label>
@@ -169,20 +181,24 @@
 							</div>
 							<div class="col-12">
 								<label class="field-label">Description</label>
-								<textarea class="form-control-dark" id="lostItemDesc" rows="3" placeholder="Where and when you lost it, distinguishing marks, etc."></textarea>
+								<textarea class="form-control-dark" id="lostItemDesc" rows="3"
+									placeholder="Where and when you lost it, distinguishing marks, etc."></textarea>
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Predicted Location</label>
-								<input type="text" class="form-control-dark" id="lostItemLocation" placeholder="e.g. Library, 2nd floor">
+								<input type="text" class="form-control-dark" id="lostItemLocation"
+									placeholder="e.g. Library, 2nd floor">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Image</label>
-								<input type="file" class="form-control-dark" id="lostItemImage" accept="image/jpeg,image/png,image/webp,image/gif">
+								<input type="file" class="form-control-dark" id="lostItemImage"
+									accept="image/jpeg,image/png,image/webp,image/gif">
 								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · max 8MB</div>
 								<div id="lostItemImagePreview"></div>
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn">Submit Report</button>
+								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn">Submit
+									Report</button>
 							</div>
 						</div>
 					</div>
@@ -192,9 +208,12 @@
 			<!-- ============ FOUND ITEMS ============ -->
 			<div id="found" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="found-browse" onclick="switchTab('found', 'found-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')">My Reports</button>
-					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')">Report Item</button>
+					<button class="tab-btn active" data-tab="found-browse"
+						onclick="switchTab('found', 'found-browse')">Browse All</button>
+					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')">My
+						Reports</button>
+					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')">Report
+						Item</button>
 				</div>
 
 				<div id="found-browse" class="tab-pane">
@@ -216,24 +235,29 @@
 						<div class="row g-3">
 							<div class="col-md-6">
 								<label class="field-label">Item Name</label>
-								<input type="text" class="form-control-dark" id="foundItemName" placeholder="e.g. Black umbrella">
+								<input type="text" class="form-control-dark" id="foundItemName"
+									placeholder="e.g. Black umbrella">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Predicted Location</label>
-								<input type="text" class="form-control-dark" id="foundItemLocation" placeholder="e.g. Canteen">
+								<input type="text" class="form-control-dark" id="foundItemLocation"
+									placeholder="e.g. Canteen">
 							</div>
 							<div class="col-12">
 								<label class="field-label">Description</label>
-								<textarea class="form-control-dark" id="foundItemDesc" rows="3" placeholder="Where and when you found it, distinguishing marks, etc."></textarea>
+								<textarea class="form-control-dark" id="foundItemDesc" rows="3"
+									placeholder="Where and when you found it, distinguishing marks, etc."></textarea>
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Image</label>
-								<input type="file" class="form-control-dark" id="foundItemImage" accept="image/jpeg,image/png,image/webp,image/gif">
+								<input type="file" class="form-control-dark" id="foundItemImage"
+									accept="image/jpeg,image/png,image/webp,image/gif">
 								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · max 8MB</div>
 								<div id="foundItemImagePreview"></div>
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn">Submit Report</button>
+								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn">Submit
+									Report</button>
 							</div>
 						</div>
 					</div>
@@ -243,11 +267,16 @@
 			<!-- ============ TEAM FINDER ============ -->
 			<div id="team" class="section">
 				<div class="tab-row">
-					<button class="tab-btn active" data-tab="team-browse" onclick="switchTab('team', 'team-browse')">Browse Teams</button>
-					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')">My Team</button>
-					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')">Create Team</button>
-					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')">Join Requests</button>
-					<button class="tab-btn" data-tab="team-applications" onclick="switchTab('team', 'team-applications')">My Applications</button>
+					<button class="tab-btn active" data-tab="team-browse"
+						onclick="switchTab('team', 'team-browse')">Browse Teams</button>
+					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')">My
+						Team</button>
+					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')">Create
+						Team</button>
+					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')">Join
+						Requests</button>
+					<button class="tab-btn" data-tab="team-applications"
+						onclick="switchTab('team', 'team-applications')">My Applications</button>
 				</div>
 
 				<div id="team-browse" class="tab-pane">
@@ -269,7 +298,8 @@
 						<div class="row g-3">
 							<div class="col-12">
 								<label class="field-label">Team Purpose</label>
-								<textarea class="form-control-dark" id="teamPurpose" rows="3" placeholder="What is this team for? e.g. Looking for 2 backend devs for a Smart India Hackathon project on campus safety."></textarea>
+								<textarea class="form-control-dark" id="teamPurpose" rows="3"
+									placeholder="What is this team for? e.g. Looking for 2 backend devs for a Smart India Hackathon project on campus safety."></textarea>
 								<div class="text-muted small mt-1">Minimum 10 characters, maximum 300.</div>
 							</div>
 							<div class="col-md-6">
@@ -284,7 +314,8 @@
 								</select>
 							</div>
 							<div class="col-12">
-								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn">Create Team</button>
+								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn">Create
+									Team</button>
 							</div>
 						</div>
 					</div>
@@ -306,11 +337,13 @@
 			<div id="resume" class="section">
 				<div class="stat-card">
 					<h6 class="fw-bold mb-3">AI Resume Quality Check</h6>
-					<p class="text-muted small mb-3">Upload your resume (PDF or DOCX) to get an AI-generated quality score, missing keywords, and improvement suggestions.</p>
+					<p class="text-muted small mb-3">Upload your resume (PDF or DOCX) to get an AI-generated quality
+						score, missing keywords, and improvement suggestions.</p>
 					<div class="row g-3 mb-3">
 						<div class="col-md-6">
 							<label class="field-label">Target Role</label>
-							<input type="text" class="form-control-dark" id="resumeRole" placeholder="e.g. Backend Developer">
+							<input type="text" class="form-control-dark" id="resumeRole"
+								placeholder="e.g. Backend Developer">
 						</div>
 						<div class="col-md-6">
 							<label class="field-label">Years of Experience</label>

@@ -3,6 +3,8 @@ package com.ietscroll.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.validation.constraints.Email;
+
 public class LostItemResponse {
 	private UUID publicIdOfLostRequest;
 
@@ -17,6 +19,9 @@ public class LostItemResponse {
 	private int prize;
 	
 	private LocalDateTime createdAt;
+	
+	@Email
+	private String contactTo;
 
 	public UUID getPublicIdOfLostRequest() {
 		return publicIdOfLostRequest;
@@ -79,6 +84,14 @@ public class LostItemResponse {
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public String getContactTo() {
+		return contactTo;
+	}
+
+	public void setContactTo(String contactTo) {
+		this.contactTo = contactTo;
 	}
 
 }

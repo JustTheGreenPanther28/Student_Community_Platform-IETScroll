@@ -56,6 +56,7 @@ public class FoundItemServiceImpl implements FoundItemService {
 			lostItemDTO.setFoundItemName(foundItem.getFoundItemName());
 			lostItemDTO.setPublicIdOfFoundItem(foundItem.getPublicIdOfFoundItem());
 			lostItemDTO.setCreatedAt(foundItem.getCreatedAt());
+			lostItemDTO.setContactTo(email);
 
 			foundItemDTOs.add(lostItemDTO);
 		}
