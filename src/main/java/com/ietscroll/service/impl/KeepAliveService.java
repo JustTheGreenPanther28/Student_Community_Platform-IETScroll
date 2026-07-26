@@ -13,7 +13,7 @@ public class KeepAliveService {
     @Value("${app.self-url}")
     private String selfUrl;
 
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 3600000 )
     public void pingSelf() {
         try {
             restTemplate.getForObject(selfUrl + "/actuator/health", String.class);

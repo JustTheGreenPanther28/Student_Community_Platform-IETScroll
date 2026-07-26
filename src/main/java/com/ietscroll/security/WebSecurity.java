@@ -13,7 +13,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 import com.ietscroll.service.UserService;
 
 @Configuration
@@ -65,26 +68,40 @@ public class WebSecurity {
 		AuthenticationFilter authFilter = new AuthenticationFilter(authManager, jwtUtil, userService);
 
 		http.csrf(csrf -> csrf.disable());
-		http.cors(Customizer.withDefaults());
+	    http.cors(Customizer.withDefaults());
 
-	    http.sessionManagement(session ->
-	        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		http.authorizeHttpRequests(
-				auth -> auth.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-						.requestMatchers("/", "/favicon.ico" , "/index.html", "/style.css", "/login.html", "/register.html",
-								"/styleForSafety.css", "/safety.html","/dashboard.html")
-						.permitAll().requestMatchers("/actuator/health").permitAll()
-						.requestMatchers(HttpMethod.POST, SecurityConstaints.LOGIN).permitAll()
-						.requestMatchers(HttpMethod.POST, SecurityConstaints.SIGN_UP_URL).permitAll()
-						.requestMatchers(HttpMethod.POST, SecurityConstaints.EMAIL_VERIFICATION).permitAll()
-						.requestMatchers(HttpMethod.POST, SecurityConstaints.RESEND_OTP).permitAll()
-						.requestMatchers(SecurityConstaints.ADMIN_APIs).hasRole(Role.ADMIN.toString()).anyRequest()
-						.authenticated());
+		http.authorizeHttpRequests(auth -> auth.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+				.permitAll()
+				.requestMatchers("/", "/favicon.ico", "/index.html", "/style.css", "/login.html", "/register.html",
+						"/styleForSafety.css", "/safety.html", "/login.css", "/login.js",
+						"/register.css", "/register.js", "/dashboard.css", "/dashboard.js").permitAll().
+				requestMatchers("/actuator/health").permitAll()
+				.requestMatchers(HttpMethod.POST, SecurityConstaints.LOGIN).permitAll()
+				.requestMatchers(HttpMethod.POST, SecurityConstaints.SIGN_UP_URL).permitAll()
+				.requestMatchers(HttpMethod.POST, SecurityConstaints.EMAIL_VERIFICATION).permitAll()
+				.requestMatchers(HttpMethod.POST, SecurityConstaints.RESEND_OTP).permitAll()
+				.requestMatchers(SecurityConstaints.ADMIN_APIs).hasRole(Role.ADMIN.toString()).anyRequest()
+				.authenticated());
 
 		http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterAfter(new AuthorizationFilter(jwtUtil), AuthenticationFilter.class);
 
 		return http.build();
+	}
+	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+	    CorsConfiguration config = new CorsConfiguration();
+	    config.setAllowedOriginPatterns(List.of("*")); 
+	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+	    config.setAllowedHeaders(List.of("*"));
+	    config.setAllowCredentials(true);
+	    config.setExposedHeaders(List.of("Authorization")); 
+
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", config);
+	    return source;
 	}
 }

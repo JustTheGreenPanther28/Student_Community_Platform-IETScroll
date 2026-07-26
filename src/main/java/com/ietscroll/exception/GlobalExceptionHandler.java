@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 	// ── Fallback for genuinely unanticipated failures — still 500, on purpose ──
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleOtherException(Exception exception, WebRequest request) {
-		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Something went wrong!");
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
