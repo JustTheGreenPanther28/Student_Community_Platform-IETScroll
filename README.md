@@ -122,12 +122,6 @@ A Spring Boot REST API powering the **IET Scroll** platform — a vibrant colleg
 - Team purpose is validated by Mistral LLM before saving.
 - Resume analysis uses Llama via Spring AI, with Apache Tika for text extraction.
 
----
-
-## Frontend
-
-🚧 Currently under development.  
-The frontend will consume this REST API. API docs are available via Swagger UI once the backend is running.
 
 ---
 
