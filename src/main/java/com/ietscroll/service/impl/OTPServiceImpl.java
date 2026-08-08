@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ietscroll.entity.OTPEntity;
 import com.ietscroll.entity.UserEntity;
 import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.LimitExceededException;
 import com.ietscroll.exception.ResourceNotFoundException;
 import com.ietscroll.repository.OTPRepository;
 import com.ietscroll.repository.UserRepository;
@@ -19,6 +20,11 @@ import com.ietscroll.service.OTPService;
 
 @Service
 public class OTPServiceImpl implements OTPService {
+
+	// Minimum time a user must wait between two OTP requests for the same email.
+	private static final long RESEND_COOLDOWN_SECONDS = 60;
+	// OTP validity window (kept in sync with expirationTime below).
+	private static final long OTP_VALIDITY_MINUTES = 10;
 
 	private final  UserRepository userRepo;
 	private final OTPRepository otpRepo;
@@ -33,11 +39,28 @@ public class OTPServiceImpl implements OTPService {
 	@Override
 	@Transactional
 	public void GenerateOTP(String email) {
+		otpRepo.deleteOldOTPs();
+
+		List<OTPEntity> existing = otpRepo.findByEmail(email);
+		if (existing != null && !existing.isEmpty()) {
+			OTPEntity latest = existing.get(existing.size() - 1);
+			LocalDateTime issuedAt = latest.getExpirationTime().minusMinutes(OTP_VALIDITY_MINUTES);
+			LocalDateTime cooldownEndsAt = issuedAt.plusSeconds(RESEND_COOLDOWN_SECONDS);
+			if (cooldownEndsAt.isAfter(LocalDateTime.now())) {
+				throw new LimitExceededException(
+						"Please wait a bit before requesting another OTP.");
+			}
+		}
+
+		// Invalidate any previously issued, still-unexpired OTPs for this email so
+		// only the newest one is ever valid.
+		otpRepo.deleteByEmail(email);
+
 		SecureRandom secureRandom = new SecureRandom();
 		int otp = secureRandom.nextInt(100000, 999999);
 
 		OTPEntity otpEntity = new OTPEntity();
-		otpEntity.setExpirationTime(LocalDateTime.now().plusMinutes(10));
+		otpEntity.setExpirationTime(LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES));
 		otpEntity.setEmail(email);
 		otpEntity.setOtp(otp);
 
@@ -70,6 +93,7 @@ public class OTPServiceImpl implements OTPService {
 			UserEntity user = userRepo.findByEmail(email);
 			user.setVerified(true);
 			userRepo.save(user);
+			otpRepo.deleteByEmail(email); // one-time use: can't be replayed
 			return Result.SUCCESS;
 		}
 

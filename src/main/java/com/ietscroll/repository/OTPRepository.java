@@ -18,4 +18,8 @@ public interface OTPRepository extends JpaRepository<OTPEntity,Integer>{
 	@Transactional
 	@Query(value = "delete from otp where expiration_time < CURRENT_TIMESTAMP", nativeQuery=true)
 	void deleteOldOTPs();
+
+	@Modifying
+	@Transactional
+	void deleteByEmail(String email);
 }

@@ -14,29 +14,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-import com.cloudinary.api.exceptions.ApiException;
-
 import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	// All our own exceptions carry their correct status already
 	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<Object> handleApiException(ApiException exception) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
-		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), exception.getStatus());
 	}
 
-	// ── Thrown by UserServiceImpl.getUserByEmail() when a lookup outside the
-	//     Spring Security auth chain fails to find a user 
 	@ExceptionHandler(UsernameNotFoundException.class)
 	public ResponseEntity<Object> handleUsernameNotFound(UsernameNotFoundException exception) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
 	}
 
-	// ── @Valid failures on @RequestBody (e.g. UserRegisterRequest) ──
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException exception) {
 		String message = exception.getBindingResult().getFieldErrors().stream()
@@ -47,7 +41,6 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
-	// ── @RequestParam / @PathVariable constraint failures (e.g. @Min on teamSize) ──
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException exception) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), exception.getMessage());
@@ -62,18 +55,15 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
-	// ── Malformed JSON body ──
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<Object> handleUnreadable(HttpMessageNotReadableException exception) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Malformed request body");
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
-	// ── Fallback for genuinely unanticipated failures — still 500, on purpose ──
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleOtherException(Exception exception, WebRequest request) {
 		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Something went wrong!");
-		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>("Something went wrong!", new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
-
