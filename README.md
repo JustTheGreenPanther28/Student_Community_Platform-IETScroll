@@ -189,6 +189,26 @@ The dashboard is a single-page-style client: one HTML shell with JS-driven view 
 
 ---
 
+## Future Scope
+
+* **Campus Marketplace with real-time chat:** "OLX for college" — buy/sell listings between students, with WebSocket/STOMP-based real-time chat between buyer and seller. Planned but not yet implemented.
+
+* **Study Resource Hub:** Upload and browse study materials (notes, PDFs, question banks) tagged by subject and semester, reusing the existing Cloudinary pipeline. Planned but not yet implemented.
+
+* **Notification system:** In-app notifications for events like new team join requests, lost-item matches, and marketplace messages, built on the existing OTP/email infrastructure. Could use polling or Server-Sent Events.
+
+* **Admin/moderation dashboard:** The `ADMIN` role and `/api/v1/admin/**` route are already scaffolded in the security config; build out the actual controller and UI for reviewing flagged content, managing users, and viewing reports.
+
+* **Automated testing + CI/CD:** No test suite currently exists. Add JUnit/Mockito coverage for the service layer and security filters, then wire up a GitHub Actions pipeline for automated builds and tests on push.
+
+* **Search improvements:** Lost & Found and any future Marketplace listings currently rely on basic repository queries. Full-text search (Postgres native or Elasticsearch) would support keyword/category/location-based search.
+
+* **Caching layer (Redis):** Beyond the already-planned OTP-in-Redis migration, cache frequently-read data such as the skills master list, resume-check results, and paginated item feeds to reduce DB load.
+
+* **Analytics/reporting endpoints:** Aggregate stats such as items reported vs. resolved, active teams, and resume-checker usage — useful both as an admin-facing feature and as a platform health signal.
+
+---
+
 ## Frontend
 
 ✅ Built and functional — see [Frontend Pages](#frontend-pages) above. Served directly as static resources by this Spring Boot app (no separate frontend deployment/build step). Auth state lives in `localStorage` (`iet_token`); the dashboard talks to the API at a hardcoded `BASE` URL in `dashboard.js`/`login.js`/`register.js` (currently pointed at the deployed Render instance — swap to `localhost:4040` for local dev, see the commented-out line in `dashboard.js`).
