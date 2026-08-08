@@ -26,7 +26,7 @@ public class OTPServiceImpl implements OTPService {
 	// OTP validity window (kept in sync with expirationTime below).
 	private static final long OTP_VALIDITY_MINUTES = 10;
 
-	private final  UserRepository userRepo;
+	private final UserRepository userRepo;
 	private final OTPRepository otpRepo;
 	private final EmailService emailService;
 
@@ -47,8 +47,7 @@ public class OTPServiceImpl implements OTPService {
 			LocalDateTime issuedAt = latest.getExpirationTime().minusMinutes(OTP_VALIDITY_MINUTES);
 			LocalDateTime cooldownEndsAt = issuedAt.plusSeconds(RESEND_COOLDOWN_SECONDS);
 			if (cooldownEndsAt.isAfter(LocalDateTime.now())) {
-				throw new LimitExceededException(
-						"Please wait a bit before requesting another OTP.");
+				throw new LimitExceededException("Please wait a bit before requesting another OTP.");
 			}
 		}
 
@@ -77,17 +76,17 @@ public class OTPServiceImpl implements OTPService {
 		List<OTPEntity> otps = otpRepo.findByEmail(email);
 		UserEntity exist = userRepo.findByEmail(email);
 
-		if(exist==null) {
+		if (exist == null) {
 			throw new ResourceNotFoundException("User doesn't exist");
 		}
-		
-		if (otps==null || otps.isEmpty()) {
+
+		if (otps == null || otps.isEmpty()) {
 			throw new BadRequestException("Incorrect email or OTP expired!");
 		}
 
 		OTPEntity otp = otps.get(otps.size() - 1);
 		if (otp.getExpirationTime().isBefore(LocalDateTime.now())) {
-		    throw new BadRequestException("OTP expired");
+			throw new BadRequestException("OTP expired");
 		}
 
 		// Check if maximum failed attempts reached (max 5 attempts per OTP)
