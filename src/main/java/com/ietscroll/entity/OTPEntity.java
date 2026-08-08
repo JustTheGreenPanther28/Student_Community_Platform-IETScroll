@@ -23,6 +23,9 @@ public class OTPEntity {
 	@Column(nullable = false)
 	private LocalDateTime expirationTime;
 
+	@Column(nullable = false)
+	private int attemptCount = 0;  // Track failed verification attempts; max 5 allowed
+
 	public int getId() {
 		return id;
 	}
@@ -49,6 +52,14 @@ public class OTPEntity {
 
 	public void setExpirationTime(LocalDateTime expirationTime) {
 		this.expirationTime = expirationTime;
+	}
+
+	public int getAttemptCount() {
+		return attemptCount;
+	}
+
+	public void setAttemptCount(int attemptCount) {
+		this.attemptCount = attemptCount;
 	}
 
 }

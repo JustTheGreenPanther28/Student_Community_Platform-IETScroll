@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.tika.Tika;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.ietscroll.exception.BadRequestException;
 import com.ietscroll.response.QualityOfResume;
 import com.ietscroll.service.ResumeCheckerService;
@@ -26,7 +24,6 @@ public class ResumeCheckerServiceImpl implements ResumeCheckerService {
 
 	// Real, sniffed MIME types we accept (checked against file bytes, not the
 	// client-supplied Content-Type header, which is trivially spoofable).
-	// CLIENT CAN PASS 
 	private static final List<String> DOCUMENT_TYPES = List.of("application/pdf", "application/msword",
 			"application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 

@@ -71,6 +71,7 @@ public class OTPServiceImpl implements OTPService {
 	}
 
 	@Override
+	@Transactional
 	public Result verifyOTP(int otpGivenByUser, String email) {
 		otpRepo.deleteOldOTPs();
 		List<OTPEntity> otps = otpRepo.findByEmail(email);
@@ -89,6 +90,12 @@ public class OTPServiceImpl implements OTPService {
 		    throw new BadRequestException("OTP expired");
 		}
 
+		// Check if maximum failed attempts reached (max 5 attempts per OTP)
+		if (otp.getAttemptCount() >= 5) {
+			otpRepo.deleteByEmail(email); // Lock out by deleting the OTP
+			throw new LimitExceededException("Too many failed OTP verification attempts. Please request a new OTP.");
+		}
+
 		if (otpGivenByUser == otp.getOtp()) {
 			UserEntity user = userRepo.findByEmail(email);
 			user.setVerified(true);
@@ -97,7 +104,13 @@ public class OTPServiceImpl implements OTPService {
 			return Result.SUCCESS;
 		}
 
-		return Result.FAILED;
+		// Increment failed attempt counter
+		otp.setAttemptCount(otp.getAttemptCount() + 1);
+		otpRepo.save(otp);
+
+		// Remaining attempts left
+		int remainingAttempts = 5 - otp.getAttemptCount();
+		throw new BadRequestException("Incorrect OTP. You have " + remainingAttempts + " attempt(s) remaining.");
 	}
 
 }
