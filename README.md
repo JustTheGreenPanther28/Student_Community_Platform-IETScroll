@@ -167,7 +167,7 @@ The dashboard is a single-page-style client: one HTML shell with JS-driven view 
 
 * **OTP storage:** OTPs are currently stored in PostgreSQL. Each generation and verification requires a database operation, and expiration is handled through application logic. Moving OTP storage to Redis is planned so that native TTL-based expiration can be used.
 
-* **OTP brute-force protection:** There is currently no limit on the number of incorrect OTP attempts. A future improvement is to track failed attempts and invalidate an OTP after a fixed number of incorrect guesses, such as five attempts.
+* **OTP brute-force protection:** ⏳ **IN PROGRESS** — Added `attemptCount` field to `OTPEntity` with 5-attempt limit per OTP. Wrong guess increments counter; 6th attempt triggers lockout. See [Spring Boot Setup](#spring-boot-setup--implementation-roadmap) for deployment instructions.
 
 * **Malware and malicious file scanning:** Uploaded resumes and images are currently validated and processed without an antivirus scan. Adding something such as ClamAV would provide an additional layer of protection against malicious files and specially crafted documents, including potential ZIP-based attacks in DOCX files.
 
@@ -186,6 +186,261 @@ The dashboard is a single-page-style client: one HTML shell with JS-driven view 
 * **Frontend API configuration:** The frontend currently has the deployed backend URL directly written in the JavaScript files. The local development URL is commented out. This should eventually be moved to an environment-based configuration so switching between development and production does not require editing source files.
 
 * **JWT storage in the browser:** The frontend currently stores the JWT in `localStorage`. This makes the token accessible to JavaScript running on the page, meaning a successful XSS attack could potentially expose it. Moving authentication to a secure `HttpOnly` cookie would reduce this risk, although it would require changes to the current authentication flow.
+
+---
+
+## Spring Boot Setup & Implementation Roadmap
+
+### ✅ Recently Implemented
+
+**OTP Brute-Force Protection (v2.0)**
+- Added `attemptCount` field to `OTPEntity` (default 0)
+- Modified `OTPServiceImpl.verifyOTP()` to enforce 5-attempt limit
+- On 5th failed guess: OTP invalidated, user must request new one
+- Files: `OTPEntity.java`, `OTPServiceImpl.java`
+- Database migration: `ALTER TABLE otp ADD COLUMN attempt_count INT NOT NULL DEFAULT 0;`
+
+**Deployment:**
+
+**Option A: Hibernate (Current Setup — No Extra Steps)**
+```yaml
+# In application.yml
+spring.jpa.hibernate.ddl-auto=update
+```
+✅ Just deploy. Hibernate auto-creates the `attempt_count` column.
+
+**Option B: Flyway (Production-Grade — Recommended)**
+1. Add Flyway to `pom.xml` (if not already present):
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-core</artifactId>
+    <version>9.22.3</version>
+</dependency>
+```
+
+2. Update `application.yml`:
+```yaml
+spring.jpa.hibernate.ddl-auto=validate
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+```
+
+3. Create folder: `src/main/resources/db/migration/`
+
+4. Add migration file: `src/main/resources/db/migration/V2__add_otp_attempt_count.sql`
+```sql
+ALTER TABLE otp ADD COLUMN attempt_count INT NOT NULL DEFAULT 0;
+```
+
+5. (Optional) If V1 migration doesn't exist, create it to track schema history:
+```sql
+-- V1__initial_schema.sql
+-- Documents the baseline schema at a point in time
+-- This ensures Flyway knows V2 comes after V1
+```
+
+6. Deploy. Flyway auto-runs migrations on startup.
+
+✅ Database schema is now versioned, tracked, and auditable.
+
+---
+
+### ⏳ High Priority (Do Next)
+
+**1. Resume Checker Rate Limiting with Bucket4j**
+- **Urgency:** HIGH (cost control + abuse prevention)
+- **Why:** Endpoint calls paid LLM on every hit. `bucket4j-core` is already in `pom.xml` but never used.
+- **What:** Rate-limit `/api/v1/ietscroll/resume/quality` to ~5 requests/user/day
+- **Files to modify:**
+  - `pom.xml` — verify bucket4j version
+  - Create `com/ietscroll/configuration/Bucket4jConfiguration.java` — define rate limit buckets
+  - Modify `ResumeCheckerController.java` — add `@RateLimitCacheable` or manual bucket check
+  - Add `LimitExceededException` response handling in `GlobalExceptionHandler`
+- **Effort:** 2-3 hours
+- **Resume line:** "Implemented per-user API rate limiting with Bucket4j to control LLM costs"
+
+**2. Automated Testing (JUnit + Mockito)**
+- **Urgency:** HIGH (portfolio signal, deployment confidence)
+- **Why:** Zero test suite currently. Recruiters filter on this hard.
+- **What:** Write tests for:
+  - OTP generation, verification, attempt tracking
+  - Lost/Found item creation and filters
+  - Team creation and member management
+  - Resume checker file validation
+  - JWT authentication flows
+  - Exception handling
+- **Files to create:**
+  - `src/test/java/com/ietscroll/service/impl/OTPServiceImplTest.java`
+  - `src/test/java/com/ietscroll/controller/OTPControllerTest.java`
+  - `src/test/java/com/ietscroll/security/AuthenticationFilterTest.java`
+  - Add `@SpringBootTest`, `@MockBean`, `Mockito`
+- **Effort:** 4-6 hours
+- **Resume line:** "Added 30+ unit and integration tests with JUnit 5 and Mockito, achieving 70%+ code coverage"
+
+**3. GitHub Actions CI/CD Pipeline**
+- **Urgency:** HIGH (shows production readiness)
+- **What:** Auto-build, test, and deploy on every push to main
+- **Files to create:**
+  - `.github/workflows/build-and-test.yml` — runs `mvn clean test`
+  - `.github/workflows/deploy.yml` — pushes to Render on tag
+- **Config:**
+```yaml
+# .github/workflows/build-and-test.yml
+name: Build & Test
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+      - run: mvn clean test
+      - run: mvn clean package -DskipTests
+```
+- **Effort:** 1-2 hours
+- **Resume line:** "Set up automated CI/CD pipeline with GitHub Actions for continuous testing and deployment"
+
+---
+
+### 📋 Medium Priority (Next Sprint)
+
+**4. Redis for OTP Storage + Native TTL**
+- **Why:** Current Postgres OTP approach requires explicit cleanup queries. Redis has native key expiration.
+- **What:**
+  - Add `spring-boot-starter-data-redis` to `pom.xml`
+  - Refactor `OTPEntity` → store OTP as `RedisHash` with `@TimeToLive`
+  - Simplify `OTPServiceImpl` — no need for `deleteOldOTPs()` logic
+  - Keep `attemptCount` in Redis too
+- **Files:**
+  - Modify `OTPEntity.java` — add `@RedisHash("otp")` annotation
+  - Update `OTPRepository.java` — extend `CrudRepository<OTPEntity, String>`
+  - Simplify `OTPServiceImpl.java` — remove cleanup queries
+- **Effort:** 3-4 hours
+- **Bonus:** Redis can cache other frequently-read data (skills master list, paginated results)
+
+**5. Admin Functionality**
+- **Why:** Role already scaffolded (`ADMIN` in security config, `/api/v1/admin/**` route pattern exists)
+- **What:**
+  - Create `com/ietscroll/controller/AdminController.java` — endpoints for:
+    - `GET /api/v1/admin/users` — paginated user list
+    - `PATCH /api/v1/admin/user/{id}/ban` — disable user account
+    - `GET /api/v1/admin/reports` — flagged content (images rejected by SightEngine, etc.)
+    - `DELETE /api/v1/admin/item/{id}` — remove inappropriate lost/found item
+  - Create simple admin dashboard page (HTML) or link to Swagger
+- **Files:**
+  - Create `AdminController.java`
+  - Add `AdminUserDTO`, `ReportDTO`, etc.
+  - Extend `UserEntity` with `banned` boolean flag
+  - Add migration: `ALTER TABLE user_entity ADD COLUMN banned BOOLEAN DEFAULT FALSE;`
+- **Effort:** 3-4 hours
+
+**6. Structured Logging + Request Tracing**
+- **Why:** Makes debugging multi-service calls (LLM, Cloudinary, SightEngine) far easier
+- **What:**
+  - Add `spring-boot-starter-logging` (already present)
+  - Use SLF4J with Logback configuration
+  - Add correlation IDs to all requests (MDC — Mapped Diagnostic Context)
+  - Log entry/exit of key methods with duration
+- **Config in `logback-spring.xml`:**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - [%X{correlationId}] %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>
+```
+- **Files:**
+  - Create `com/ietscroll/interceptor/LoggingInterceptor.java` — adds correlation ID to MDC
+  - Register in `WebMvcConfigurer`
+- **Effort:** 2-3 hours
+
+**7. Circuit Breaker Pattern (Resilience4j)**
+- **Why:** External services (LLM, Cloudinary, SightEngine, Brevo) can be slow or down. Don't cascade failures.
+- **What:**
+  - Add `spring-cloud-starter-circuitbreaker-resilience4j` to `pom.xml`
+  - Wrap calls to external APIs in circuit breakers with fallback responses
+  - Example: If LLM is slow → return cached result or generic feedback instead of timing out
+- **Files:**
+  - Modify `ResumeCheckerServiceImpl.java` — add `@CircuitBreaker` annotation
+  - Modify `SightEngineServiceImpl.java` — add `@CircuitBreaker` annotation
+  - Add configuration in `application.yml`:
+```yaml
+resilience4j.circuitbreaker:
+  instances:
+    resumeChecker:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 5000
+      permittedNumberOfCallsInHalfOpenState: 3
+```
+- **Effort:** 3-4 hours
+
+---
+
+### 🔮 Lower Priority (Polish/Future)
+
+**8. Refresh Token Mechanism**
+- **Why:** Current JWTs valid for 24 hours with no revocation. Better: short-lived access token + long-lived refresh token
+- **What:**
+  - Extend `AuthenticationFilter` to return both `accessToken` (15 mins) and `refreshToken` (7 days)
+  - Add new endpoint `POST /api/v1/auth/refresh` — accepts refresh token, returns new access token
+  - Store refresh tokens in Redis or DB with expiration
+- **Effort:** 4-5 hours
+
+**9. Full-Text Search (Postgres or Elasticsearch)**
+- **Why:** Current Lost & Found / Marketplace rely on basic `findAll()`. Add keyword/category/location search.
+- **What:**
+  - Postgres: Use `@Query` with `ILIKE` and full-text search operators
+  - OR Elasticsearch: More powerful but heavier
+- **Effort:** 3-4 hours
+
+**10. Docker & Maven Configuration**
+- **Why:** Portfolio signal. Show you can containerize and build reproducibly.
+- **What:**
+  - Add `Dockerfile` to repo
+  - Multi-stage build: compile with Maven, run with slim JRE
+  - Add `docker-compose.yml` for local dev (Postgres + app)
+- **Files:**
+```dockerfile
+# Dockerfile
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src src
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:21-jre-slim
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+- **Effort:** 1-2 hours
+
+---
+
+### Deployment Checklist
+
+Before pushing to production:
+- [ ] OTP brute-force protection deployed (Hibernate or Flyway migration run)
+- [ ] Bucket4j rate limiting on resume checker
+- [ ] JUnit tests added and passing (CI/CD green)
+- [ ] Logging configured with correlation IDs
+- [ ] Circuit breakers on external service calls
+- [ ] Environment variables for secrets (API keys, DB URL, not hardcoded)
+- [ ] CORS, CSP, and other security headers in place
+- [ ] Error responses don't leak sensitive info
+- [ ] Rate limit headers included in responses
+- [ ] Swagger/OpenAPI docs updated
 
 ---
 
