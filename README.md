@@ -1,85 +1,62 @@
-# IET Scroll — Full-Stack Campus Community Platform
+# IET Scroll — Full-Stack Platform
 
-A Spring Boot REST API, paired with a working vanilla HTML/CSS/JS frontend, powering
-**IET Scroll** — a community app for IET DAVV students. Covers lost & found item
-management, team formation with skill-based matching, AI-powered resume review,
-OTP-based authentication, and image moderation — restricted to `@ietdavv.edu.in`
-emails.
-
-> **Status:** Both backend and frontend are functional and deployed. Not a
-> backend-only project — `src/main/resources/static/` ships a complete dashboard,
-> login, and registration flow that consumes every endpoint below.
+A full-stack web platform for the **IET Scroll** community app for IET DAVV students — a Spring Boot REST API backend paired with a server-rendered vanilla HTML/CSS/JS frontend (served as static resources from the same app). Supports lost & found item management, team formation, AI-powered resume review, OTP-based authentication, and image moderation.
 
 ---
 
 ## Tech Stack
 
-| Layer                | Technology                                            |
-|-----------------------|--------------------------------------------------------|
-| Framework             | Spring Boot                                            |
-| Security              | Spring Security (stateless JWT), role-based access     |
-| ORM                   | Spring Data JPA                                        |
-| Database              | PostgreSQL (Supabase)                                  |
-| Image Storage         | Cloudinary                                              |
-| Image Moderation      | SightEngine API (nudity, gore, violence, weapons, self-harm, offensive content) |
-| AI / LLM              | Spring AI — Llama (resume scoring), Mistral (team-purpose moderation) |
-| Email                 | JavaMailSender (Gmail SMTP)                             |
-| PDF/DOCX Parsing      | Apache Tika                                             |
-| API Documentation     | Swagger / OpenAPI 3                                     |
-| Frontend              | HTML, CSS, vanilla JS (dashboard, login, register, safety pages) |
-| Uptime                | Scheduled self-ping (`@Scheduled`) to avoid Render free-tier sleep |
+| Layer                  | Technology                           |
+|------------------------|--------------------------------------|
+| Backend Framework       | Spring Boot                          |
+| Frontend                | HTML5, CSS3, vanilla JavaScript (fetch-based SPA-style dashboard) |
+| Security               | Spring Security (JWT / Basic Auth) |
+| ORM                    | Spring Data JPA                      |
+| Database               | Postgres                                |
+| Image Storage          | Cloudinary                           |
+| Image Moderation     | SightEngine API                     |
+| AI / LLM              | Spring AI (Llama for resumes, Mistral for moderation) |
+| Email                  | JavaMailSender (Brevo SMTP)          |
+| PDF Parsing            | Apache Tika                          |
+| API Documentation      | Swagger / OpenAPI 3                  |
+
+---
+
+## Frontend Pages
+`src/main/resources/static`
+
+| Page | File | Purpose |
+|------|------|---------|
+| Landing | `index.html` | Public marketing/intro page for the platform |
+| Login | `login.html` + `login.js` | Authenticates via `/login`, stores JWT in `localStorage` |
+| Register | `register.html` + `register.js` | Registration + OTP verification flow |
+| Dashboard | `dashboard.html` + `dashboard.js` | Main authenticated app — sidebar-navigated views for Profile, Lost Items, Found Items, Team Finder, and Resume Checker, all driven by a shared `api()` fetch wrapper that attaches the JWT, handles 401s (auto-logout), and surfaces backend error messages via toasts |
+| Safety & Trust | `safety.html` | Public page on platform safety/moderation policies |
+
+The dashboard is a single-page-style client: one HTML shell with JS-driven view switching (`show('lost' | 'found' | 'team' | 'resume' | 'profile', ...)`), backed entirely by the REST API below.
 
 ---
 
 ## Features
 
-- **User Registration & OTP Verification**
-  Register with institute email (`@ietdavv.edu.in`). A 6-digit OTP (via
-  `SecureRandom`) is emailed through Gmail SMTP and must be verified within 10
-  minutes before login is allowed.
+- **User Registration & OTP Verification**  
+  Register with institute email (@ietdavv.edu.in). An OTP is sent via email and must be verified within 10 minutes. OTP requests are rate-limited (60s cooldown between resends), each new OTP invalidates any prior one, and a verified OTP is deleted immediately after use to prevent replay.
 
-- **JWT Auth with Role-Based Access**
-  Stateless JWT issued on login, carrying the user's role as a claim. An
-  `/api/v1/admin/**` route pattern is reserved and gated behind `ROLE_ADMIN` in
-  the security config (no admin endpoints are implemented yet — the gate exists,
-  the routes don't).
+- **Lost & Found**  
+  Report lost/found items with image uploads. Images are moderated via SightEngine before storage in Cloudinary.
 
-- **Lost & Found**
-  Report lost/found items with an image. Images are validated by content type,
-  then run through SightEngine moderation before being uploaded to Cloudinary.
-  Per-user caps are enforced server-side: max **2** active lost-item requests,
-  max **3** active found-item requests.
+- **Team Finder**  
+  Create, browse, and join teams. Team purposes are moderated by the Mistral LLM before saving.
 
-- **Team Finder with Skill Matching**
-  Create a team with a purpose (validated by the Mistral LLM before saving),
-  a max size (3–20 members), a privacy setting (public/private), and an optional
-  list of required skills. One active team per user.
+- **Resume Checker**  
+  Upload resumes (PDF/DOCX) to receive AI-generated feedback, including scores, missing keywords, and suggestions, via the Llama LLM. Uploaded files are validated by sniffing actual file bytes (not just the client-supplied content type), capped at 5MB, and resume text is delimited before being sent to the LLM to reduce prompt-injection risk.
 
-- **Team Join-Request Workflow**
-  Users apply to a team with a message. The team owner can view pending
-  requests, accept (capacity-checked against max size), reject, or remove an
-  existing member. Applicants can view the status of everything they've applied
-  to.
+- **Paginated Feeds**  
+  View lost items, found items, and teams with pagination, sorted by latest.
 
-- **Resume Checker**
-  Upload a resume (PDF/DOCX). Apache Tika extracts the text, which is sent to
-  the Llama chat client via Spring AI and returned as a structured
-  `QualityOfResume` object (score, missing keywords, suggestions) — not raw
-  LLM text.
-
-- **Paginated Feeds**
-  Lost items, found items, and teams are all paginated via a shared
-  `PagedResponseDTO` wrapper, sorted by most recent.
-
-- **Safety & Trust Page**
-  A dedicated frontend page covering anti-ragging policy, equality, privacy,
-  platform rules, and a liability disclaimer — served as static HTML.
-
-- **Uptime Workaround**
-  A scheduled job self-pings `/actuator/health` every hour to reduce the
-  chance of the app being asleep when a real request comes in, working around
-  Render's free-tier spin-down.
-
+- **Consistent Error Responses**  
+  All API errors return the correct HTTP status (404/409/422/429/etc.) and a clear message via a centralized exception handler.
+  
 ---
 
 ## API Endpoints
@@ -87,132 +64,126 @@ emails.
 ### User
 `/api/v1/user`
 
-| Method | Endpoint                  | Description                                  |
-|--------|----------------------------|-----------------------------------------------|
-| POST   | `/register`                | Register with institute email; triggers OTP  |
-| GET    | `/`                         | Get current user's profile                    |
-| PATCH  | `/username/{newUsername}`  | Update username                                |
-| PATCH  | `/fullname/{fullname}`     | Update full name                               |
+| Method | Endpoint             | Description                                    |
+|---------|----------------------|------------------------------------------------|
+| POST    | `/register`          | Register with institute email; triggers OTP    |
+| GET     | `/`                  | Get current user's profile                     |
+| PATCH   | `/username/{newUsername}` | Update username                        |
+| PATCH   | `/fullname/{fullname}`    | Update full name                          |
 
 ### OTP
 `/api/v1/otp`
 
-| Method | Endpoint  | Description                     |
-|--------|-----------|-----------------------------------|
-| POST   | `/verify` | Verify OTP and activate account |
+| Method | Endpoint   | Description                       |
+|---------|------------|-----------------------------------|
+| POST    | `/verify` | Verify OTP and activate account   |
 
 ### Lost Items
 `/api/v1/lost-item`
 
-| Method | Endpoint | Description                                     |
-|--------|----------|--------------------------------------------------|
-| POST   | `/`      | Report a lost item (image + details, max 2 active) |
-| GET    | `/me`    | Get current user's active lost items             |
-| GET    | `/`      | Get all open lost items (paginated)               |
-| PATCH  | `/close` | Close a lost item request                         |
+| Method | Endpoint | Description                                               |
+|---------|----------|-----------------------------------------------------------|
+| POST    | `/`      | Report a lost item (with image and details)               |
+| GET     | `/me`    | Get current user's active lost items                     |
+| GET     | `/`      | Get all open lost items (paginated)                        |
+| PATCH   | `/close` | Close a lost item request                                |
 
 ### Found Items
 `/api/v1/found-item`
 
-| Method | Endpoint | Description                                        |
-|--------|----------|-------------------------------------------------------|
-| POST   | `/`      | Report a found item (image + details, max 3 active)  |
-| GET    | `/me`    | Get current user's active found items                |
-| GET    | `/`      | Get all pending found items (paginated)               |
-| PATCH  | `/close` | Close a found item request                             |
+| Method | Endpoint | Description                                               |
+|---------|----------|-----------------------------------------------------------|
+| POST    | `/`      | Report a found item (with image and details)               |
+| GET     | `/me`    | Get current user's active found items                     |
+| GET     | `/`      | Get all pending found items (paginated)                   |
+| PATCH   | `/close` | Close a found item request                                |
 
 ### Teams
 `/api/v1/team`
 
-| Method | Endpoint     | Description                                          |
-|--------|--------------|---------------------------------------------------------|
-| POST   | `/`          | Create a team (AI-moderated purpose, optional skills)  |
-| GET    | `/`          | Browse all active public teams (paginated)              |
-| GET    | `/me`        | Get authenticated user's active team                    |
-| PATCH  | `/close`     | Close your team                                          |
-| PATCH  | `/team-size` | Update max team size (min: 3, max: 20)                  |
+| Method | Endpoint     | Description                                              |
+|---------|--------------|----------------------------------------------------------|
+| POST    | `/`          | Create a team (AI-moderated purpose)                     |
+| GET     | `/`          | Browse all public active teams (paginated)              |
+| GET     | `/me`        | Get authenticated user's active team                     |
+| PATCH   | `/close`     | Close your team                                         |
+| PATCH   | `/team-size` | Update max team size (min: 3)                             |
 
 ### Team Join Requests
 `/api/v1/request-team`
 
-| Method | Endpoint                    | Description                              |
-|--------|-------------------------------|---------------------------------------------|
-| POST   | `/`                            | Submit a join request with a message      |
-| GET    | `/requests`                    | View pending join requests (team owner)    |
-| GET    | `/team-members`                | View accepted team members                  |
-| PATCH  | `/accept/{applicantEmail}`     | Accept a join request (capacity-checked)   |
-| PATCH  | `/reject/{applicantEmail}`     | Reject a join request                        |
-| PATCH  | `/remove/{applicantEmail}`     | Remove a team member                          |
-| GET    | `/my-application`              | View all your submitted applications         |
+| Method | Endpoint                       | Description                                       |
+|---------|--------------------------------|---------------------------------------------------|
+| POST    | `/`                            | Submit a join request with a message              |
+| GET     | `/requests`                    | View pending join requests (team owner)           |
+| GET     | `/team-members`                | View accepted team members                        |
+| PATCH   | `/accept/{applicantEmail}`     | Accept a join request                             |
+| PATCH   | `/reject/{applicantEmail}`     | Reject a join request                             |
+| PATCH   | `/remove/{applicantEmail}`     | Remove a team member                              |
+| GET     | `/my-application`              | View all your submitted applications              |
 
 ### Resume Checker
 `/api/v1/ietscroll/resume`
 
-| Method | Endpoint   | Description                                              |
-|--------|------------|-------------------------------------------------------------|
-| POST   | `/quality` | Upload resume (PDF/DOCX) for AI-generated quality report |
+| Method | Endpoint | Description                                              |
+|---------|----------|----------------------------------------------------------|
+| POST    | `/quality` | Upload resume (PDF/DOCX) for AI-generated quality report |
 
 ---
 
 ## Key Business Rules
 
-- Only `@ietdavv.edu.in` email addresses can register (plus one configurable
-  admin email).
+- Only `@ietdavv.edu.in` email addresses can register (plus configurable admin email).
 - OTP expires after 10 minutes; account must be verified before login.
-- Users can have at most 2 active lost-item requests and 3 active found-item
-  requests at a time.
-- Users can create only 1 active team at a time; team size is capped 3–20.
-- Accepting a join request is capacity-checked — it's rejected if the team is
-  already at `maxMember`.
-- All uploaded images pass through SightEngine moderation (nudity, gore,
-  violence, self-harm, weapons, offensive content, alcohol/drugs) with
-  per-category confidence thresholds.
-- Team purpose text is validated by the Mistral LLM before saving.
-- Resume analysis uses Llama via Spring AI, with Apache Tika handling
-  PDF/DOCX text extraction.
+- Users can have at most 2 active lost-item requests and 3 active found-item requests.
+- Users can create only 1 active team at a time.
+- All uploaded images pass through SightEngine moderation (nudity, violence, weapons, drugs, etc.).
+- Team purpose is validated by Mistral LLM before saving.
+- Resume analysis uses Llama via Spring AI, with Apache Tika for text extraction.
+- Uploaded files are capped at 5MB (10MB per multipart request).
+- Frontend origins allowed to call the API are restricted via `CORS_ALLOWED_ORIGINS` (no wildcard).
+
+---
+
+## Known Issues & Challenges
+
+### Fixed
+- **Global exception handler was catching the wrong `ApiException`.** It imported `com.cloudinary.api.exceptions.ApiException` instead of the app's own `com.ietscroll.exception.ApiException`, so custom exceptions (`ResourceNotFoundException`, `LimitExceededException`, `DuplicateResourceException`, `ContentModerationException`, `InappropriateImageException`) were never actually caught — they fell through to a generic 500 instead of returning their intended status and message. Fixed: correct import, and the handler now uses `exception.getStatus()` instead of a hardcoded 400.
+- **Resume upload content-type check trusted the client-supplied header**, which is trivially spoofable. Now the actual file bytes are sniffed via Tika to determine the real type.
+- **No cap on uploaded file size**, and no explicit multipart limits configured. Added a 5MB per-file / 10MB per-request cap.
+- **Resume text was passed to the LLM with no separation from instructions**, a prompt-injection risk if a resume contained crafted text. Extracted text is now wrapped in explicit delimiters with an instruction not to follow anything inside them.
+- **OTPs had no resend cooldown and were never invalidated** when a new one was requested — a user (or attacker) could spam OTP requests, and stale unexpired OTPs lingered validly alongside newer ones. Added a 60s resend cooldown, invalidation of prior OTPs on resend, and deletion of the OTP row immediately after successful verification (prevents replay).
+- **CORS allowed all origins (`*`) with credentials enabled.** Now restricted to an explicit allowlist via `CORS_ALLOWED_ORIGINS`.
+- **Expired and invalid/tampered JWTs returned an identical bare 401**, giving the client no way to distinguish "please log in again" from "this token was tampered with." Now returns distinct error bodies (`token_expired` vs `token_invalid`).
+
+### Open / Planned
+- **OTP store is Postgres-backed, not Redis.** Every OTP generate/verify round-trips the DB and relies on a manual expiry query rather than native TTL expiry. Planned: move OTPs to Redis.
+- **No brute-force lockout on OTP verification attempts** (e.g. max 5 wrong guesses before invalidation). Requires an `attempts` column on the OTP record — blocked on a DB migration since `spring.jpa.hibernate.ddl-auto=validate` won't auto-apply schema changes.
+- **No virus/malware scanning on uploaded files.** Resumes (PDF/DOCX) and lost & found images are parsed/stored without an antivirus pass (e.g. ClamAV), leaving a gap against malicious documents or zip-bomb-style DOCX payloads.
+- **JWT has no revocation or refresh-token flow.** A token is valid for its full 24h lifetime with no way to invalidate it early (logout, password change, ban). Planned alongside the Redis migration, using it as a token-blacklist store.
+- **No automated tests** for services, security filters, or business rules (active-item caps, OTP flow, team join limits).
+- **No timeouts or circuit breakers on outbound calls** to the LLM providers (Mistral/Llama via NVIDIA), Cloudinary, SightEngine, or Brevo — a slow/unavailable third party can stall requests indefinitely.
+- **No structured logging or request correlation IDs**, making it harder to trace a single request across the LLM, image moderation, and email steps it may touch.
+- **`Role.ADMIN` and the `/api/v1/admin/**` route are wired into security config but no admin controller exists yet.**
+- **No API-level rate limiting** beyond the OTP-specific cooldown above (e.g. no throttling on the resume-checker endpoint, which is the most expensive call in the system).
+- **Frontend API base URL is hardcoded** in `dashboard.js`/`login.js`/`register.js` (`const BASE = 'https://...onrender.com'`) with the localhost alternative commented out. Should be environment-driven instead of requiring a manual code edit to switch between local/deployed backends.
+- **JWT is stored in `localStorage`** on the frontend, which is readable by any JS running on the page — an XSS vulnerability anywhere in the dashboard would expose the token. An httpOnly cookie would be safer, but requires backend changes to how the token is issued/read.
 
 ---
 
 ## Frontend
 
-Not a stub — `src/main/resources/static/` contains a working client:
-
-- `index.html` / `login.html` / `register.html` — landing, login, and
-  registration, each with matching CSS/JS
-- `dashboard.html` + `dashboard.js` (~780 lines) — tabs for Lost & Found
-  browsing/submission with image preview, Team browsing/creation, the full
-  join-request workflow (apply, view requests, accept/reject/remove), resume
-  upload, profile editing, and pagination controls, all wired directly to the
-  REST API above
-- `safety.html` — Safety & Trust page (anti-ragging, equality, privacy, rules,
-  disclaimer)
-
-API docs are available via Swagger UI once the backend is running.
-
----
-
-## Known Rough Edges
-
-Being upfront about what's unfinished, for anyone reading the code:
-
-- `TeamService.getMyTeamPosts()` is unimplemented (returns `null`).
-- `CloudinaryService.deleteImage()` exists but isn't called anywhere yet — no
-  cleanup path for removed images.
-- `/api/v1/otp/resend` is reserved as a security constant but has no
-  controller endpoint behind it yet.
-- `/api/v1/admin/**` is role-gated but has no implemented endpoints yet.
-- A couple of leftover debug `System.out.println` calls in
-  `TeamJoinRequestServiceImpl`.
+✅ Built and functional — see [Frontend Pages](#frontend-pages) above. Served directly as static resources by this Spring Boot app (no separate frontend deployment/build step). Auth state lives in `localStorage` (`iet_token`); the dashboard talks to the API at a hardcoded `BASE` URL in `dashboard.js`/`login.js`/`register.js` (currently pointed at the deployed Render instance — swap to `localhost:4040` for local dev, see the commented-out line in `dashboard.js`).
 
 ---
 
 ## License
 
-Owner: [JustTheGreenPanther28](https://github.com/JustTheGreenPanther28)
+OWNER : (https://github.com/JustTheGreenPanther28)
 
 ---
 
 ## Links
 
 - API Documentation: [Swagger UI](https://student-community-platform-ietscroll.onrender.com/swagger-ui/index.html#/)
-- Website: [IET Scroll](https://student-community-platform-ietscroll.onrender.com/)
+- Website : [IET SCROLL](https://student-community-platform-ietscroll.onrender.com/)
