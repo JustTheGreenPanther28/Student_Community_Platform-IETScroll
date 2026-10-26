@@ -675,11 +675,40 @@ label.field-label {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN
+   MOBILE TOPBAR & OVERLAY
+   ========================================================================== */
+.topbar {
+	display: none;
+	background: #0c111d;
+	border-bottom: 1.5px solid var(--card-border);
+	z-index: 190;
+	height: 60px;
+}
+
+.sidebar-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.75);
+	backdrop-filter: blur(4px);
+	z-index: 195;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-overlay.active {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETS & PHONES)
    ========================================================================== */
 @media (max-width: 991px) {
 	.sidebar {
 		transform: translateX(-100%);
+		z-index: 200;
+		box-shadow: 10px 0 35px rgba(0, 0, 0, 0.7);
 	}
 	.sidebar.open {
 		transform: translateX(0);
@@ -692,5 +721,60 @@ label.field-label {
 	}
 	.topbar {
 		display: flex !important;
+	}
+}
+
+@media (max-width: 640px) {
+	.main-content {
+		padding: 14px;
+		padding-top: 76px;
+	}
+	.page-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		margin-bottom: 1.5rem;
+	}
+	.page-header h2 {
+		font-size: 1.6rem;
+	}
+	.stat-card {
+		padding: 1.25rem;
+	}
+	.tab-row {
+		width: 100%;
+		overflow-x: auto;
+		flex-wrap: nowrap;
+		-webkit-overflow-scrolling: touch;
+		padding: 5px;
+	}
+	.tab-btn {
+		flex-shrink: 0;
+		padding: 8px 14px;
+		font-size: 0.85rem;
+		white-space: nowrap;
+	}
+	.item-card {
+		flex-direction: column;
+		padding: 1.25rem;
+		gap: 1rem;
+	}
+	.item-card img, .item-card-fallback-img {
+		width: 100%;
+		height: 180px;
+	}
+	.item-title {
+		font-size: 1.15rem;
+	}
+	.close-card-btn {
+		width: 100%;
+		margin-left: 0 !important;
+		margin-top: 0.5rem;
+		justify-content: center;
+	}
+	.pagination-row {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 8px;
 	}
 }

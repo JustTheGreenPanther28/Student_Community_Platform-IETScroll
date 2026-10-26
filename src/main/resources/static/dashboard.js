@@ -1,6 +1,7 @@
-const BASE = window.location.origin;
-// const BASE = 'http://localhost:4040';
-
+const RENDER_BASE = 'https://student-community-platform-ietscroll.onrender.com';
+const BASE = (window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin)
+    ? RENDER_BASE
+    : (window.location.port === '4040' ? window.location.origin : RENDER_BASE);
 const token = localStorage.getItem('iet_token');
 if (!token) {
     window.location.replace('login.html');
@@ -72,16 +73,46 @@ function updatePaginationButtons(prevId, nextId, page, itemCount, res) {
 }
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+    const isOpen = sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active', isOpen);
 }
 
 function show(id, el) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const targetSection = document.getElementById(id);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    if (el) el.classList.add('active');
-    document.getElementById('header-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
-    if (window.innerWidth < 991) document.getElementById('sidebar').classList.remove('open');
+    let targetLink = el;
+    if (!targetLink) {
+        targetLink = document.querySelector(`.nav-link[onclick*="'${id}'"]`);
+    }
+    if (targetLink) targetLink.classList.add('active');
+
+    const titles = {
+        dashboard: 'Overview',
+        profile: 'Profile',
+        lost: 'Lost Items',
+        found: 'Found Items',
+        team: 'Team Finder',
+        resume: 'Resume Checker'
+    };
+    const titleEl = document.getElementById('header-title');
+    if (titleEl) titleEl.innerText = titles[id] || (id.charAt(0).toUpperCase() + id.slice(1));
+
+    // Close mobile sidebar and overlay
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.remove('open');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (overlay) overlay.classList.remove('active');
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (id === 'lost') loadLostBrowse();
     if (id === 'found') loadFoundBrowse();

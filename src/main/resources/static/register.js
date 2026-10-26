@@ -1,4 +1,7 @@
-const BASE = window.location.origin;
+const RENDER_BASE = 'https://student-community-platform-ietscroll.onrender.com';
+const BASE = (window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin)
+	? RENDER_BASE
+	: (window.location.port === '4040' ? window.location.origin : RENDER_BASE);
 		let registeredEmail = '';
 
 		// ── password toggle ──

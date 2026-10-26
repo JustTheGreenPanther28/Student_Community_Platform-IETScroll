@@ -1,5 +1,7 @@
-const BASE = window.location.origin;
-		//const BASE = "http://localhost:4040";
+const RENDER_BASE = 'https://student-community-platform-ietscroll.onrender.com';
+const BASE = (window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin)
+	? RENDER_BASE
+	: (window.location.port === '4040' ? window.location.origin : RENDER_BASE);
 		
 		//PASSWORD => HIDE/SHOW
 		const pwInput = document.getElementById('password');
@@ -84,8 +86,8 @@ const BASE = window.location.origin;
 					showAlert('success', 'Login successful! Redirecting…');
 
 					setTimeout(() => {
-						window.location.href = BASE + '/dashboard.html';
-					}, 1400);
+						window.location.href = 'dashboard.html';
+					}, 1200);
 				} else {
 					let errorMsg = 'Invalid email or password.';
 					try {
