@@ -211,24 +211,43 @@ async function loadDashboardStats() {
 function renderItemCard(item, { nameKey, publicIdKey, imageKey, locationKey, extra, onClose, emailKey }) {
     const wrap = document.createElement('div');
     wrap.className = 'item-card';
-    const img = item[imageKey]
-        ? `<a href="${item[imageKey]}" target="_blank" rel="noopener noreferrer">
-			<img src="${item[imageKey]}" alt="" style="cursor: pointer;">
-		   </a>`
-        : `<div class="avatar" style="width:70px;height:70px;flex-shrink:0;"><i class="bi bi-image"></i></div>`;
-    const emailLine = emailKey && item[emailKey]
-        ? `<div class="item-meta mt-1">Contact: ${item[emailKey]}</div>`
+    const imgHtml = item[imageKey]
+        ? <a href="${item[imageKey]}" target="_blank" rel="noopener noreferrer">
+			<img src="${item[imageKey]}" alt="Item Photo">
+		   </a>
+        : <div class="item-card-fallback-img"><i class="bi bi-box-seam"></i></div>;
+
+    const locationBadge = item[locationKey]
+        ? <span class="meta-chip"><i class="bi bi-geo-alt-fill text-danger"></i> + item[locationKey] + </span>
         : '';
-    wrap.innerHTML = `
-		${img}
+
+    const rewardBadge = (item.prize && item.prize > 0)
+        ? <span class="meta-chip reward"><i class="bi bi-gift-fill"></i>Reward: ? + item.prize + </span>
+        : '';
+
+    const emailBadge = (emailKey && item[emailKey])
+        ? <a href="mailto: + item[emailKey] + " class="meta-chip contact"><i class="bi bi-envelope-fill"></i> + item[emailKey] + </a>
+        : '';
+
+    const closeBtn = onClose
+        ? <button class="btn-danger-soft ms-auto flex-shrink-0"><i class="bi bi-x-circle"></i> Close</button>
+        : '';
+
+    wrap.innerHTML = 
+		 + imgHtml + 
 		<div class="flex-grow-1">
-			<div class="item-title">${item[nameKey] || 'Untitled'}</div>
-			<div class="item-desc">${item.description || ''}</div>
-			<div class="item-meta">${item[locationKey] || ''} ${extra ? '· ' + extra(item) : ''}</div>
-			${emailLine}
+			<div class="item-title">
+				<span> + (item[nameKey] || 'Untitled Item') + </span>
+				 + rewardBadge + 
+			</div>
+			<div class="item-desc"> + (item.description || 'No description provided.') + </div>
+			<div class="item-meta-row">
+				 + locationBadge + 
+				 + emailBadge + 
+			</div>
 		</div>
-		${onClose ? `<button class="btn-danger-soft">Close</button>` : ''}
-	`;
+		 + closeBtn + 
+	;
     if (onClose) {
         wrap.querySelector('button').addEventListener('click', () => onClose(item[publicIdKey]));
     }

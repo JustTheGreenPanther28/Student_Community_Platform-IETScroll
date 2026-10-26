@@ -15,17 +15,17 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 	<link
-		href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
 		rel="stylesheet">
 	<link rel="stylesheet" href="dashboard.css">
 </head>
 
 <body>
 	<div class="topbar d-none position-fixed top-0 w-100 p-3 bg-dark align-items-center justify-content-between"
-		style="z-index:199; height: 60px; border-bottom: 1px solid var(--border);">
+		style="z-index:199; height: 60px; border-bottom: 1px solid var(--card-border);">
 		<button class="btn text-white" onclick="toggleSidebar()"><i class="bi bi-list fs-3"></i></button>
-		<span class="fw-bold text-primary">IET SCROLL</span>
-		<div class="avatar" style="width:35px; height:35px;" id="avatar-icon-mobile">?</div>
+		<span class="fw-bold text-white">IET SCROLL</span>
+		<div class="avatar" style="width:36px; height:36px;" id="avatar-icon-mobile">?</div>
 	</div>
 
 	<div class="d-flex">
@@ -33,20 +33,19 @@
 			<div class="sidebar-brand">IET SCROLL</div>
 			<div class="nav-list">
 				<a href="#" onclick="show('dashboard', this); return false;" class="nav-link active"><i
-						class="bi bi-grid-fill"></i> Dashboard</a>
+						class="bi bi-grid-1x2-fill"></i> Overview</a>
 				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i
-						class="bi bi-person-circle"></i> Profile</a>
-				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search"></i>
+						class="bi bi-person-badge"></i> Profile</a>
+				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search-heart"></i>
 					Lost Items</a>
-				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-check-lg"></i>
+				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-box-seam"></i>
 					Found Items</a>
 				<a href="#" onclick="show('team', this); return false;" class="nav-link"><i class="bi bi-people"></i>
 					Team Finder</a>
 				<a href="#" onclick="show('resume', this); return false;" class="nav-link"><i
-						class="bi bi-file-earmark-text"></i> Resume Checker</a>
+						class="bi bi-stars"></i> Resume Checker</a>
 				<div class="logout-container">
-					<hr class="mx-3 opacity-10">
-					<a href="#" onclick="logout(); return false;" class="nav-link text-danger"><i
+					<a href="#" onclick="logout(); return false;" class="nav-link"><i
 							class="bi bi-box-arrow-left"></i> Logout</a>
 				</div>
 			</div>
@@ -55,13 +54,13 @@
 		<main class="main-content">
 			<header class="page-header">
 				<div>
-					<h2 class="fw-bold mb-1" id="header-title">Overview</h2>
-					<p class="text-muted mb-0">Welcome back, <span id="welcome-name">…</span></p>
+					<h2 id="header-title">Overview</h2>
+					<p>Welcome back, <span id="welcome-name" class="fw-semibold text-white">…</span></p>
 				</div>
 				<div class="d-flex align-items-center gap-3">
 					<div class="text-end d-none d-md-block">
-						<div class="fw-bold small" id="top-username">…</div>
-						<div class="text-muted" style="font-size: 0.7rem;" id="top-email">…</div>
+						<div id="top-username">…</div>
+						<div id="top-email">…</div>
 					</div>
 					<div class="avatar" id="avatar-icon">?</div>
 				</div>
@@ -72,23 +71,32 @@
 				<div class="row g-4">
 					<div class="col-md-4">
 						<div class="stat-card">
-							<i class="bi bi-megaphone text-primary fs-3 mb-3 d-block"></i>
+							<div class="icon-box indigo">
+								<i class="bi bi-megaphone-fill"></i>
+							</div>
 							<div class="info-label">Items Reported Lost</div>
-							<div class="fs-2 fw-bold" id="lostCount">–</div>
+							<div class="fs-1 fw-bold text-white" id="lostCount">–</div>
+							<div class="small text-muted mt-1">Active lost item requests</div>
 						</div>
 					</div>
 					<div class="col-md-4">
 						<div class="stat-card">
-							<i class="bi bi-check-circle text-success fs-3 mb-3 d-block"></i>
+							<div class="icon-box emerald">
+								<i class="bi bi-check-circle-fill"></i>
+							</div>
 							<div class="info-label">Items Found</div>
-							<div class="fs-2 fw-bold" id="foundCount">–</div>
+							<div class="fs-1 fw-bold text-white" id="foundCount">–</div>
+							<div class="small text-muted mt-1">Pending claims & pickups</div>
 						</div>
 					</div>
 					<div class="col-md-4">
 						<div class="stat-card">
-							<i class="bi bi-people text-info fs-3 mb-3 d-block"></i>
+							<div class="icon-box cyan">
+								<i class="bi bi-people-fill"></i>
+							</div>
 							<div class="info-label">Team Status</div>
-							<div class="fs-5 fw-bold mt-2" id="teamStatus">–</div>
+							<div class="fs-4 fw-bold text-white mt-2" id="teamStatus">–</div>
+							<div class="small text-muted mt-1">Hackathons & Projects</div>
 						</div>
 					</div>
 				</div>
@@ -97,24 +105,24 @@
 			<!-- ============ PROFILE ============ -->
 			<div id="profile" class="section">
 				<div class="stat-card mb-4">
-					<h5 class="fw-bold mb-4">Personal Information</h5>
+					<h5 class="fw-bold text-white mb-4"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Personal Information</h5>
 					<div class="row g-4">
-						<div class="col-md-6">
-							<div class="p-3 border border-secondary border-opacity-25 rounded-3">
+						<div class="col-md-4">
+							<div class="p-3 border border-secondary border-opacity-25 rounded-3 bg-black bg-opacity-20">
 								<div class="info-label">Full Name</div>
-								<div class="info-value" id="p-name">…</div>
+								<div class="info-value text-white" id="p-name">…</div>
 							</div>
 						</div>
-						<div class="col-md-6">
-							<div class="p-3 border border-secondary border-opacity-25 rounded-3">
+						<div class="col-md-4">
+							<div class="p-3 border border-secondary border-opacity-25 rounded-3 bg-black bg-opacity-20">
 								<div class="info-label">Username</div>
-								<div class="info-value" id="p-username">…</div>
+								<div class="info-value text-white" id="p-username">…</div>
 							</div>
 						</div>
-						<div class="col-md-6">
-							<div class="p-3 border border-secondary border-opacity-25 rounded-3">
-								<div class="info-label">Email</div>
-								<div class="info-value" id="p-email">…</div>
+						<div class="col-md-4">
+							<div class="p-3 border border-secondary border-opacity-25 rounded-3 bg-black bg-opacity-20">
+								<div class="info-label">Institute Email</div>
+								<div class="info-value text-white" id="p-email">…</div>
 							</div>
 						</div>
 					</div>
@@ -123,7 +131,7 @@
 				<div class="row g-4">
 					<div class="col-md-6">
 						<div class="stat-card">
-							<h6 class="fw-bold mb-3">Update Username</h6>
+							<h6 class="fw-bold text-white mb-3"><i class="bi bi-pencil-square me-2 text-primary"></i>Update Username</h6>
 							<label class="field-label">New Username</label>
 							<input type="text" class="form-control-dark mb-3" id="newUsernameInput"
 								placeholder="e.g. vedant28">
@@ -132,7 +140,7 @@
 					</div>
 					<div class="col-md-6">
 						<div class="stat-card">
-							<h6 class="fw-bold mb-3">Update Full Name</h6>
+							<h6 class="fw-bold text-white mb-3"><i class="bi bi-person-fill-gear me-2 text-primary"></i>Update Full Name</h6>
 							<label class="field-label">New Full Name</label>
 							<input type="text" class="form-control-dark mb-3" id="newFullnameInput"
 								placeholder="e.g. Vedant Maheshwari">
@@ -146,19 +154,17 @@
 			<div id="lost" class="section">
 				<div class="tab-row">
 					<button class="tab-btn active" data-tab="lost-browse"
-						onclick="switchTab('lost', 'lost-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')">My
-						Reports</button>
-					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')">Report
-						Item</button>
+						onclick="switchTab('lost', 'lost-browse')"><i class="bi bi-grid me-1"></i> Browse All</button>
+					<button class="tab-btn" data-tab="lost-mine" onclick="switchTab('lost', 'lost-mine')"><i class="bi bi-inbox me-1"></i> My Reports</button>
+					<button class="tab-btn" data-tab="lost-report" onclick="switchTab('lost', 'lost-report')"><i class="bi bi-plus-circle me-1"></i> Report Item</button>
 				</div>
 
 				<div id="lost-browse" class="tab-pane">
 					<div id="lostBrowseList"></div>
 					<div class="pagination-row">
-						<button class="btn-outline-accent" id="lostPrevBtn" onclick="changeLostPage(-1)">Prev</button>
-						<span id="lostPageLabel" class="text-muted small">Page 1</span>
-						<button class="btn-outline-accent" id="lostNextBtn" onclick="changeLostPage(1)">Next</button>
+						<button class="btn-outline-accent" id="lostPrevBtn" onclick="changeLostPage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+						<span id="lostPageLabel" class="text-white small fw-semibold px-2">Page 1</span>
+						<button class="btn-outline-accent" id="lostNextBtn" onclick="changeLostPage(1)">Next <i class="bi bi-chevron-right"></i></button>
 					</div>
 				</div>
 
@@ -168,37 +174,36 @@
 
 				<div id="lost-report" class="tab-pane d-none">
 					<div class="stat-card">
-						<h6 class="fw-bold mb-3">Report a Lost Item</h6>
+						<h5 class="fw-bold text-white mb-1">Report a Lost Item</h5>
+						<p class="text-muted small mb-4">Provide clear photos and a detailed description (color, brand, distinguishing marks, location).</p>
 						<div class="row g-3">
 							<div class="col-md-6">
-								<label class="field-label">Item Name</label>
+								<label class="field-label">Item Name *</label>
 								<input type="text" class="form-control-dark" id="lostItemName"
-									placeholder="e.g. Blue water bottle">
+									placeholder="e.g. Wildcraft Black Backpack">
 							</div>
 							<div class="col-md-6">
-								<label class="field-label">Prize / Reward (optional)</label>
-								<input type="number" min="0" class="form-control-dark" id="lostItemPrize" placeholder="e.g. 100">
+								<label class="field-label">Reward Amount (optional, in ₹)</label>
+								<input type="number" min="0" class="form-control-dark" id="lostItemPrize" placeholder="e.g. 500">
 							</div>
 							<div class="col-12">
-								<label class="field-label">Description</label>
+								<label class="field-label">Detailed Description * (min. 20 chars)</label>
 								<textarea class="form-control-dark" id="lostItemDesc" rows="3"
-									placeholder="Where and when you lost it, distinguishing marks, etc."></textarea>
+									placeholder="Describe where and when you lost it, brand, color, stickers, or unique contents..."></textarea>
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Predicted Location</label>
 								<input type="text" class="form-control-dark" id="lostItemLocation"
-									placeholder="e.g. Library, 2nd floor">
+									placeholder="e.g. Library 2nd floor, Table 14">
 							</div>
 							<div class="col-md-6">
-								<label class="field-label">Image</label>
+								<label class="field-label">Item Photo *</label>
 								<input type="file" class="form-control-dark" id="lostItemImage"
 									accept="image/jpeg,image/png,image/webp,image/gif">
-								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · max 8MB</div>
-								<div id="lostItemImagePreview"></div>
+								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · Max 8MB</div>
 							</div>
-							<div class="col-12">
-								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn">Submit
-									Report</button>
+							<div class="col-12 mt-4">
+								<button class="btn-accent" onclick="submitLostItem()" id="lostSubmitBtn"><i class="bi bi-upload me-1"></i> Submit Report</button>
 							</div>
 						</div>
 					</div>
@@ -209,19 +214,17 @@
 			<div id="found" class="section">
 				<div class="tab-row">
 					<button class="tab-btn active" data-tab="found-browse"
-						onclick="switchTab('found', 'found-browse')">Browse All</button>
-					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')">My
-						Reports</button>
-					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')">Report
-						Item</button>
+						onclick="switchTab('found', 'found-browse')"><i class="bi bi-grid me-1"></i> Browse All</button>
+					<button class="tab-btn" data-tab="found-mine" onclick="switchTab('found', 'found-mine')"><i class="bi bi-inbox me-1"></i> My Reports</button>
+					<button class="tab-btn" data-tab="found-report" onclick="switchTab('found', 'found-report')"><i class="bi bi-plus-circle me-1"></i> Report Item</button>
 				</div>
 
 				<div id="found-browse" class="tab-pane">
 					<div id="foundBrowseList"></div>
 					<div class="pagination-row">
-						<button class="btn-outline-accent" id="foundPrevBtn" onclick="changeFoundPage(-1)">Prev</button>
-						<span id="foundPageLabel" class="text-muted small">Page 1</span>
-						<button class="btn-outline-accent" id="foundNextBtn" onclick="changeFoundPage(1)">Next</button>
+						<button class="btn-outline-accent" id="foundPrevBtn" onclick="changeFoundPage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+						<span id="foundPageLabel" class="text-white small fw-semibold px-2">Page 1</span>
+						<button class="btn-outline-accent" id="foundNextBtn" onclick="changeFoundPage(1)">Next <i class="bi bi-chevron-right"></i></button>
 					</div>
 				</div>
 
@@ -231,33 +234,32 @@
 
 				<div id="found-report" class="tab-pane d-none">
 					<div class="stat-card">
-						<h6 class="fw-bold mb-3">Report a Found Item</h6>
+						<h5 class="fw-bold text-white mb-1">Report a Found Item</h5>
+						<p class="text-muted small mb-4">Help fellow students recover their belongings by providing details and clear photos.</p>
 						<div class="row g-3">
 							<div class="col-md-6">
-								<label class="field-label">Item Name</label>
+								<label class="field-label">Item Name *</label>
 								<input type="text" class="form-control-dark" id="foundItemName"
-									placeholder="e.g. Black umbrella">
+									placeholder="e.g. Stainless Steel Water Bottle">
 							</div>
 							<div class="col-md-6">
-								<label class="field-label">Predicted Location</label>
+								<label class="field-label">Found Location *</label>
 								<input type="text" class="form-control-dark" id="foundItemLocation"
-									placeholder="e.g. Canteen">
+									placeholder="e.g. Canteen Ground Floor">
 							</div>
 							<div class="col-12">
-								<label class="field-label">Description</label>
+								<label class="field-label">Detailed Description * (min. 20 chars)</label>
 								<textarea class="form-control-dark" id="foundItemDesc" rows="3"
-									placeholder="Where and when you found it, distinguishing marks, etc."></textarea>
+									placeholder="Color, brand, condition, and where the owner can collect it from..."></textarea>
 							</div>
 							<div class="col-md-6">
-								<label class="field-label">Image</label>
+								<label class="field-label">Item Photo *</label>
 								<input type="file" class="form-control-dark" id="foundItemImage"
 									accept="image/jpeg,image/png,image/webp,image/gif">
-								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · max 8MB</div>
-								<div id="foundItemImagePreview"></div>
+								<div class="text-muted small mt-1">JPEG, PNG, WEBP, or GIF · Max 8MB</div>
 							</div>
-							<div class="col-12">
-								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn">Submit
-									Report</button>
+							<div class="col-12 mt-4">
+								<button class="btn-accent" onclick="submitFoundItem()" id="foundSubmitBtn"><i class="bi bi-upload me-1"></i> Submit Report</button>
 							</div>
 						</div>
 					</div>
@@ -268,23 +270,20 @@
 			<div id="team" class="section">
 				<div class="tab-row">
 					<button class="tab-btn active" data-tab="team-browse"
-						onclick="switchTab('team', 'team-browse')">Browse Teams</button>
-					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')">My
-						Team</button>
-					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')">Create
-						Team</button>
-					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')">Join
-						Requests</button>
+						onclick="switchTab('team', 'team-browse')"><i class="bi bi-people me-1"></i> Browse Teams</button>
+					<button class="tab-btn" data-tab="team-mine" onclick="switchTab('team', 'team-mine')"><i class="bi bi-shield-check me-1"></i> My Team</button>
+					<button class="tab-btn" data-tab="team-create" onclick="switchTab('team', 'team-create')"><i class="bi bi-plus-circle me-1"></i> Create Team</button>
+					<button class="tab-btn" data-tab="team-requests" onclick="switchTab('team', 'team-requests')"><i class="bi bi-person-plus me-1"></i> Join Requests</button>
 					<button class="tab-btn" data-tab="team-applications"
-						onclick="switchTab('team', 'team-applications')">My Applications</button>
+						onclick="switchTab('team', 'team-applications')"><i class="bi bi-send me-1"></i> My Applications</button>
 				</div>
 
 				<div id="team-browse" class="tab-pane">
 					<div id="teamBrowseList"></div>
 					<div class="pagination-row">
-						<button class="btn-outline-accent" id="teamPrevBtn" onclick="changeTeamPage(-1)">Prev</button>
-						<span id="teamPageLabel" class="text-muted small">Page 1</span>
-						<button class="btn-outline-accent" id="teamNextBtn" onclick="changeTeamPage(1)">Next</button>
+						<button class="btn-outline-accent" id="teamPrevBtn" onclick="changeTeamPage(-1)"><i class="bi bi-chevron-left"></i> Prev</button>
+						<span id="teamPageLabel" class="text-white small fw-semibold px-2">Page 1</span>
+						<button class="btn-outline-accent" id="teamNextBtn" onclick="changeTeamPage(1)">Next <i class="bi bi-chevron-right"></i></button>
 					</div>
 				</div>
 
@@ -294,37 +293,37 @@
 
 				<div id="team-create" class="tab-pane d-none">
 					<div class="stat-card">
-						<h6 class="fw-bold mb-3">Create a Team</h6>
+						<h5 class="fw-bold text-white mb-1">Create a Team</h5>
+						<p class="text-muted small mb-4">Find teammates for hackathons, college projects, or coding competitions.</p>
 						<div class="row g-3">
 							<div class="col-12">
-								<label class="field-label">Team Purpose</label>
+								<label class="field-label">Team Purpose *</label>
 								<textarea class="form-control-dark" id="teamPurpose" rows="3"
-									placeholder="What is this team for? e.g. Looking for 2 backend devs for a Smart India Hackathon project on campus safety."></textarea>
-								<div class="text-muted small mt-1">Minimum 10 characters, maximum 300.</div>
+									placeholder="Describe your project, hackathon name, goals, and who you are looking for..."></textarea>
+								<div class="text-muted small mt-1">Between 10 and 300 characters.</div>
 							</div>
 							<div class="col-md-6">
-								<label class="field-label">Max Team Size</label>
-								<input type="number" class="form-control-dark" id="teamSize" min="3" value="4">
+								<label class="field-label">Maximum Team Size</label>
+								<input type="number" class="form-control-dark" id="teamSize" min="3" max="20" value="4">
 							</div>
 							<div class="col-md-6">
 								<label class="field-label">Visibility</label>
 								<select class="form-select-dark" id="teamPrivacy">
-									<option value="PUBLIC">Public</option>
-									<option value="PRIVATE">Private</option>
+									<option value="PUBLIC">Public (Visible to all students)</option>
+									<option value="PRIVATE">Private (Invite only)</option>
 								</select>
 							</div>
-							<div class="col-12">
-								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn">Create
-									Team</button>
+							<div class="col-12 mt-4">
+								<button class="btn-accent" onclick="createTeam()" id="teamCreateBtn"><i class="bi bi-people-fill me-1"></i> Create Team</button>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<div id="team-requests" class="tab-pane d-none">
-					<h6 class="fw-bold mb-3">Pending Join Requests</h6>
+					<h6 class="fw-bold text-white mb-3"><i class="bi bi-clock-history me-2 text-warning"></i>Pending Join Requests</h6>
 					<div id="teamRequestsList"></div>
-					<h6 class="fw-bold mb-3 mt-4">Current Team Members</h6>
+					<h6 class="fw-bold text-white mb-3 mt-4"><i class="bi bi-check2-circle me-2 text-success"></i>Current Team Members</h6>
 					<div id="teamMembersList"></div>
 				</div>
 
@@ -336,23 +335,24 @@
 			<!-- ============ RESUME CHECKER ============ -->
 			<div id="resume" class="section">
 				<div class="stat-card">
-					<h6 class="fw-bold mb-3">AI Resume Quality Check</h6>
-					<p class="text-muted small mb-3">Upload your resume (PDF or DOCX) to get an AI-generated quality
-						score, missing keywords, and improvement suggestions.</p>
-					<div class="row g-3 mb-3">
+					<h5 class="fw-bold text-white mb-1"><i class="bi bi-stars me-2 text-primary"></i>AI Resume Quality Review</h5>
+					<p class="text-muted small mb-4">Upload your resume (PDF or DOCX) to get an in-depth AI analysis of contact info, summary, experience, skills, keywords, and score.</p>
+					<div class="row g-3 mb-4">
 						<div class="col-md-6">
-							<label class="field-label">Target Role</label>
+							<label class="field-label">Target Role *</label>
 							<input type="text" class="form-control-dark" id="resumeRole"
-								placeholder="e.g. Backend Developer">
+								placeholder="e.g. Backend Developer, Data Analyst">
 						</div>
 						<div class="col-md-6">
 							<label class="field-label">Years of Experience</label>
 							<input type="number" class="form-control-dark" id="resumeExperience" min="0" value="0">
 						</div>
 					</div>
-					<label class="field-label">Resume File</label>
-					<input type="file" class="form-control-dark mb-3" id="resumeFile" accept=".pdf,.docx">
-					<button class="btn-accent" onclick="submitResume()" id="resumeSubmitBtn">Analyze Resume</button>
+					<div class="mb-4">
+						<label class="field-label">Resume Document (.pdf / .docx) *</label>
+						<input type="file" class="form-control-dark" id="resumeFile" accept=".pdf,.docx">
+					</div>
+					<button class="btn-accent" onclick="submitResume()" id="resumeSubmitBtn"><i class="bi bi-magic me-1"></i> Analyze Resume</button>
 					<div id="resumeResult" class="mt-4"></div>
 				</div>
 			</div>
@@ -361,8 +361,6 @@
 	</div>
 
 	<div class="toast-msg" id="toast"></div>
-
-	<!-- Join request modal (simple inline prompt-based) -->
 
 	<script src="dashboard.js" defer></script>
 </body>

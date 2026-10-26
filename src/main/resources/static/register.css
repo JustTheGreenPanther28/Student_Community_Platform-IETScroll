@@ -168,10 +168,13 @@
 
 		/* ── FORM CARD ── */
 		.reg-card {
-			background: rgba(250, 247, 242, 0.04);
-			border: 1px solid rgba(255, 255, 255, 0.08);
-			padding: 2rem 2rem 2.25rem;
-			backdrop-filter: blur(8px);
+			background: rgba(28, 22, 18, 0.78);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 18px;
+			padding: 2.25rem;
+			backdrop-filter: blur(18px);
+			-webkit-backdrop-filter: blur(18px);
+			box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
 		}
 
 		/* ── FIELD ── */
@@ -182,25 +185,27 @@
 		.field-label {
 			display: block;
 			font-family: var(--font-mono);
-			font-size: 0.6rem;
-			letter-spacing: 0.16em;
+			font-size: 0.68rem;
+			letter-spacing: 0.12em;
 			text-transform: uppercase;
-			color: rgba(250, 247, 242, 0.45);
-			margin-bottom: 0.45rem;
+			color: rgba(250, 247, 242, 0.75);
+			margin-bottom: 0.5rem;
+			font-weight: 600;
 		}
 
 		.field-input,
 		.field-select {
 			width: 100%;
-			background: rgba(255, 255, 255, 0.05);
-			border: 1px solid rgba(255, 255, 255, 0.1);
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(255, 255, 255, 0.14);
+			border-radius: 10px;
 			color: var(--cream);
 			font-family: var(--font-body);
-			font-size: 0.93rem;
+			font-size: 0.95rem;
 			font-weight: 400;
-			padding: 0.75rem 0.95rem;
+			padding: 0.8rem 1rem;
 			outline: none;
-			transition: border-color 0.2s, background 0.2s;
+			transition: all 0.2s ease;
 			appearance: none;
 			-webkit-appearance: none;
 		}
@@ -254,8 +259,14 @@
 			}
 
 			.reg-card {
-				padding: 1.5rem 1.25rem;
-			}
+			background: rgba(28, 22, 18, 0.78);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+			border-radius: 18px;
+			padding: 2.25rem;
+			backdrop-filter: blur(18px);
+			-webkit-backdrop-filter: blur(18px);
+			box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+		}
 		}
 
 		/* inline error */
@@ -307,20 +318,21 @@
 		/* ── SUBMIT ── */
 		.submit-btn {
 			width: 100%;
-			font-family: var(--font-mono);
-			font-size: 0.78rem;
-			font-weight: 700;
-			letter-spacing: 0.12em;
-			text-transform: uppercase;
-			color: var(--ink);
-			background: var(--accent-gold);
+			padding: 0.9rem 1.25rem;
+			background: linear-gradient(135deg, #c84b11 0%, #e06020 100%);
+			color: var(--cream);
 			border: none;
-			padding: 1rem;
+			border-radius: 10px;
+			font-family: var(--font-body);
+			font-size: 0.95rem;
+			font-weight: 600;
 			cursor: pointer;
-			transition: background 0.2s, transform 0.15s;
-			margin-top: 0.5rem;
-			position: relative;
-			overflow: hidden;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.5rem;
+			box-shadow: 0 4px 18px rgba(200, 75, 17, 0.35);
+			transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 		}
 
 		.submit-btn:hover:not(:disabled) {
