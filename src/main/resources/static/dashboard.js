@@ -247,9 +247,11 @@ function renderItemCard(item, { nameKey, publicIdKey, imageKey, locationKey, ext
         ? '<a href="' + item[imageKey] + '" target="_blank" rel="noopener noreferrer"><img src="' + item[imageKey] + '" alt="Item Photo"></a>'
         : '<div class="item-card-fallback-img"><i class="bi bi-box-seam"></i></div>';
 
-    const locationBadge = item[locationKey]
-        ? '<span class="meta-chip"><i class="bi bi-geo-alt-fill text-danger"></i>' + item[locationKey] + '</span>'
-        : '';
+    const locVal = (item[locationKey] && String(item[locationKey]).trim())
+        ? String(item[locationKey]).trim()
+        : 'Location not specified';
+
+    const locationBadge = '<span class="meta-chip location"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Location: ' + locVal + '</span>';
 
     const rewardBadge = (item.prize && item.prize > 0)
         ? '<span class="meta-chip reward"><i class="bi bi-gift-fill"></i>Reward: ₹' + item.prize + '</span>'
@@ -385,7 +387,7 @@ async function submitLostItem() {
 
     const btn = document.getElementById('lostSubmitBtn');
     btn.disabled = true;
-    btn.innerText = 'Submitting…';
+    btn.innerHTML = '<span class="spinner-inline me-2"></span>AI Safety Verification in progress…';
     try {
         await api('/api/v1/lost-item', { method: 'POST', formData: fd });
         toast('Lost item reported successfully');
@@ -401,7 +403,7 @@ async function submitLostItem() {
         toast(e.message, 'error');
     } finally {
         btn.disabled = false;
-        btn.innerText = 'Submit Report';
+        btn.innerHTML = '<i class="bi bi-upload me-1"></i> Submit Report';
     }
 }
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -102,12 +104,27 @@ public class FoundItemServiceImpl implements FoundItemService {
 					"Maximum found-item request of a user can have is three, kindly close other request to create a new request.");
 		}
 
-		// ── STEP 1: Strict text spam & abusive content check (single consolidated batch) ──
-		spamProtectionService.checkItemSubmission(itemName, description, foundItemDTo.getPredictedLocation());
+		// ── STEP 1 & 2: Run Text and Vision verification concurrently for maximum speed ──
+		CompletableFuture<Void> textFuture = CompletableFuture.runAsync(() ->
+				spamProtectionService.checkItemSubmission(itemName, description, foundItemDTo.getPredictedLocation())
+		);
 
-		// ── STEP 2: NVIDIA Vision check for image authenticity & relevance ────
-		// Rejects non-physical items, software diagrams, code screenshots, memes, or mismatched items.
-		nvidiaVisionService.checkImageRelevance(image, itemName, description);
+		CompletableFuture<Void> visionFuture = CompletableFuture.runAsync(() -> {
+			try {
+				nvidiaVisionService.checkImageRelevance(image, itemName, description);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		try {
+			CompletableFuture.allOf(textFuture, visionFuture).join();
+		} catch (CompletionException ce) {
+			Throwable cause = ce.getCause();
+			if (cause instanceof RuntimeException re) throw re;
+			if (cause instanceof IOException io) throw io;
+			throw new RuntimeException(cause);
+		}
 
 		// ── STEP 3: Image safety & SightEngine double-verification ────────────
 		sightEngineService.checkImage(image);
