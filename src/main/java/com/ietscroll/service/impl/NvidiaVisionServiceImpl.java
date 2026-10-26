@@ -39,17 +39,19 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String SAFETY_PROMPT = """
-            You are a strict campus content moderation guard for Lost and Found items.
+            You are a strict security and campus content moderation guard for Lost and Found items.
             Check this image carefully. Is it SAFE to post publicly?
             Violations include:
+            - Hacking, cyber threats, exploit code, script injection, terminal screenshots, credential dumps, passwords, API tokens
+            - Scam QR codes, fake payment/crypto QR codes, phishing URLs, malicious links
+            - Commercial spam, ads, promotions, gambling, illicit service banners
             - Weapons, firearms, knives, ammunition, explosives
-            - Violence, blood, gore, dead bodies, self-harm
+            - Violence, blood, gore, dead bodies, self-harm, physical threats, harassment, extortion
             - Adult content, nudity, pornographic or sexually suggestive material
             - Alcohol, drugs, smoking, vaping paraphernalia
             - Hate symbols, Nazi/terrorist imagery, offensive gestures
-            - Commercial spam, advertisements, QR codes to external suspicious sites
 
-            Lost items like notebooks, bottles, keys, ID cards, phones, bags, headphones are SAFE.
+            Lost items like notebooks, bottles, keys, ID cards, phones, bags, headphones, calculators, clothes are SAFE.
 
             Respond ONLY in this exact format:
             SAFE
@@ -69,7 +71,7 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
         if (upper.startsWith("UNSAFE") || (upper.contains("UNSAFE:") && !upper.startsWith("SAFE"))) {
             String reason = content.replaceFirst("(?i)UNSAFE:?", "").trim();
             if (reason.isBlank()) {
-                reason = "Inappropriate content detected in image by NVIDIA Vision Guard";
+                reason = "Inappropriate, spam, or security threat detected in image by NVIDIA Vision Guard";
             }
             throw new InappropriateImageException(reason);
         }
@@ -78,15 +80,15 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
     @Override
     public void checkImageRelevance(MultipartFile file, String itemName, String description) throws IOException {
         String relevancePrompt = """
-                You are a content authenticity validator for a university campus Lost & Found platform.
+                You are a content authenticity and security validator for a university campus Lost & Found platform.
                 Item Name: "%s"
                 Item Description: "%s"
 
                 Verify the uploaded image against the item claim:
                 1. Is the image a genuine photo or depiction of a physical lost/found object (e.g. bag, bottle, keys, wallet, phone, laptop, ID card, clothing, charger, book, umbrella)?
-                   - REJECT software architecture diagrams, system flowcharts, code screenshots, random text documents, memes, or abstract graphics.
+                   - REJECT software architecture diagrams, system flowcharts, code screenshots, hacking scripts, terminal commands, random text documents, memes, or abstract graphics.
                 2. Does the image reasonably match or show the claimed item "%s"?
-                3. Is the description detailed and reasonable, or is it low-effort gibberish/spam (e.g. "lost lost", "span lost", "asdf", "test test")?
+                3. Does it contain spam, phishing, scam QR codes, cyber threats, or low-effort gibberish (e.g. "lost lost", "span lost", "asdf", "test test")?
 
                 Respond ONLY in this exact format:
                 VALID
@@ -104,7 +106,7 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
         if (upper.startsWith("INVALID") || (upper.contains("INVALID:") && !upper.startsWith("VALID"))) {
             String reason = content.replaceFirst("(?i)INVALID:?", "").trim();
             if (reason.isBlank()) {
-                reason = "The uploaded image does not appear to match the item or is not a genuine lost/found item photo.";
+                reason = "The uploaded image does not match the item, is not a genuine lost/found item photo, or failed safety checks.";
             }
             throw new ContentModerationException(reason);
         }
