@@ -53,7 +53,7 @@ public class LostItemController {
 		lostItemDTO.setLostItemname(lostItemRequest.lostItemname());
 		lostItemDTO.setPredictedLocation(lostItemRequest.predictedLocation());
 		lostItemDTO.setOwnerEmail(authentication.getName());
-		lostItemDTO.setPrize(lostItemRequest.prize());
+		lostItemDTO.setPrize(lostItemRequest.prize() != null ? lostItemRequest.prize() : 0);
 
 		Result result = lostItemService.uploadLostItem(authentication.getName(), lostItemDTO, image);
 

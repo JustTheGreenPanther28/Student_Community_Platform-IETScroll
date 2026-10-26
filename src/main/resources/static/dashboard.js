@@ -309,7 +309,9 @@ async function submitLostItem() {
     const name = document.getElementById('lostItemName').value.trim();
     const desc = document.getElementById('lostItemDesc').value.trim();
     const location = document.getElementById('lostItemLocation').value.trim();
-    const prize = document.getElementById('lostItemPrize').value.trim();
+    const prizeRaw = document.getElementById('lostItemPrize').value.trim();
+    const parsedPrize = parseInt(prizeRaw, 10);
+    const prize = (!isNaN(parsedPrize) && parsedPrize >= 0) ? parsedPrize : 0;
     const imageFile = document.getElementById('lostItemImage').files[0];
 
     if (!name || !desc) {
