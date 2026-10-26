@@ -39,19 +39,17 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String SAFETY_PROMPT = """
-            You are a strict security and campus content moderation guard for Lost and Found items.
+            You are a strict campus security and Anti-Ragging officer for a university Lost & Found platform.
             Check this image carefully. Is it SAFE to post publicly?
-            Violations include:
-            - Hacking, cyber threats, exploit code, script injection, terminal screenshots, credential dumps, passwords, API tokens
-            - Scam QR codes, fake payment/crypto QR codes, phishing URLs, malicious links
-            - Commercial spam, ads, promotions, gambling, illicit service banners
-            - Weapons, firearms, knives, ammunition, explosives
-            - Violence, blood, gore, dead bodies, self-harm, physical threats, harassment, extortion
-            - Adult content, nudity, pornographic or sexually suggestive material
-            - Alcohol, drugs, smoking, vaping paraphernalia
-            - Hate symbols, Nazi/terrorist imagery, offensive gestures
 
-            Lost items like notebooks, bottles, keys, ID cards, phones, bags, headphones, calculators, clothes are SAFE.
+            STRICT ANTI-RAGGING, PRIVACY & SAFETY RULES:
+            1. NO HUMAN FACES OR PERSON PHOTOS: The image MUST NOT show any human faces, real persons, student selfies, group pictures, or portraits. To eliminate campus ragging, harassment, and privacy violations, only inanimate physical objects are permitted.
+            2. NO CARICATURES / ANIME / TARGETING: The image MUST NOT contain anime characters, cartoon caricatures, memes, drawings, or graphics pointing towards, mocking, or ridiculing any person.
+            3. NO HACKING / THREATS: No exploit scripts, terminal screenshots, passwords, API keys, or cyber threats.
+            4. NO SCAM QR CODES: No fake payment QR codes, crypto addresses, or phishing links.
+            5. NO WEAPONS, VIOLENCE, GORE, BLOOD, SELF-HARM, DRUGS, ALCOHOL, OR ADULT/SEXUAL CONTENT.
+
+            Lost items like notebooks, water bottles, keys, ID cards, phones, bags, headphones, calculators, clothes are SAFE.
 
             Respond ONLY in this exact format:
             SAFE
@@ -61,7 +59,7 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
 
     @Override
     public void checkImage(MultipartFile file) throws IOException {
-        String content = callVisionModel(file, SAFETY_PROMPT, 50);
+        String content = callVisionModel(file, SAFETY_PROMPT, 60);
         if (content == null || content.isBlank()) {
             return;
         }
@@ -71,7 +69,7 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
         if (upper.startsWith("UNSAFE") || (upper.contains("UNSAFE:") && !upper.startsWith("SAFE"))) {
             String reason = content.replaceFirst("(?i)UNSAFE:?", "").trim();
             if (reason.isBlank()) {
-                reason = "Inappropriate, spam, or security threat detected in image by NVIDIA Vision Guard";
+                reason = "Inappropriate content, human face, or targeting material detected by Anti-Ragging Vision Guard";
             }
             throw new InappropriateImageException(reason);
         }
@@ -80,15 +78,16 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
     @Override
     public void checkImageRelevance(MultipartFile file, String itemName, String description) throws IOException {
         String relevancePrompt = """
-                You are a content authenticity and security validator for a university campus Lost & Found platform.
+                You are a content authenticity and Anti-Ragging validator for a university campus Lost & Found platform.
                 Item Name: "%s"
                 Item Description: "%s"
 
                 Verify the uploaded image against the item claim:
-                1. Is the image a genuine photo or depiction of a physical lost/found object (e.g. bag, bottle, keys, wallet, phone, laptop, ID card, clothing, charger, book, umbrella)?
-                   - REJECT software architecture diagrams, system flowcharts, code screenshots, hacking scripts, terminal commands, random text documents, memes, or abstract graphics.
-                2. Does the image reasonably match or show the claimed item "%s"?
-                3. Does it contain spam, phishing, scam QR codes, cyber threats, or low-effort gibberish (e.g. "lost lost", "span lost", "asdf", "test test")?
+                1. NO HUMAN FACES OR PERSONS: Reject any image depicting human faces, people, student portraits, or selfies (STRICT ANTI-RAGGING RULE: lost & found items must be physical inanimate objects only).
+                2. NO TARGETING OR CARICATURES: Reject anime characters, cartoon caricatures, memes, or graphics pointing towards, mocking, or ridiculing individuals.
+                3. REJECT software architecture diagrams, system flowcharts, code screenshots, hacking scripts, terminal commands, random text documents, or abstract graphics.
+                4. Does the image reasonably match or show the claimed item "%s"?
+                5. Does the text contain low-effort spam/gibberish (e.g. "lost lost", "span lost", "asdf")?
 
                 Respond ONLY in this exact format:
                 VALID
@@ -106,7 +105,7 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
         if (upper.startsWith("INVALID") || (upper.contains("INVALID:") && !upper.startsWith("VALID"))) {
             String reason = content.replaceFirst("(?i)INVALID:?", "").trim();
             if (reason.isBlank()) {
-                reason = "The uploaded image does not match the item, is not a genuine lost/found item photo, or failed safety checks.";
+                reason = "The uploaded image does not match the item, contains a human face/caricature, or failed campus anti-ragging checks.";
             }
             throw new ContentModerationException(reason);
         }
