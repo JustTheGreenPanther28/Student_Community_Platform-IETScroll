@@ -1,4 +1,4 @@
-const BASE = 'https://student-community-platform-ietscroll.onrender.com';
+const BASE = window.location.origin;
 // const BASE = 'http://localhost:4040';
 
 const token = localStorage.getItem('iet_token');

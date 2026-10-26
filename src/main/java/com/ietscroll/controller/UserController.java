@@ -1,5 +1,7 @@
 package com.ietscroll.controller;
 
+import java.time.Year;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -43,7 +45,8 @@ public class UserController {
 		userDetailDTO.setFullName(userDetail.fullName());
 		userDetailDTO.setPassword(userDetail.password());
 		userDetailDTO.setUsername(userDetail.username());
-		userDetailDTO.setYearOfPassout(userDetail.yearOfPassout());
+		// Convert plain int year → java.time.Year for the service layer
+		userDetailDTO.setYearOfPassout(userDetail.yearOfPassout() != null ? Year.of(userDetail.yearOfPassout()) : null);
 		UserDTO createdUserDetailDTO = userService.register(userDetailDTO);
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(new UserResponse(createdUserDetailDTO.getPublicUserId(), createdUserDetailDTO.getUsername(),

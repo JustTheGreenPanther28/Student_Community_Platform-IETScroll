@@ -1,4 +1,4 @@
-const BASE = 'https://student-community-platform-ietscroll.onrender.com';
+const BASE = window.location.origin;
 		let registeredEmail = '';
 
 		// ── password toggle ──
