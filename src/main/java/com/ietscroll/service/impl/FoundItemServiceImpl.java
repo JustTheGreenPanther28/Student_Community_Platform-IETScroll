@@ -27,6 +27,7 @@ import com.ietscroll.response.Result;
 import com.ietscroll.service.CloudinaryService;
 import com.ietscroll.service.FoundItemService;
 import com.ietscroll.service.SightEngineService;
+import com.ietscroll.service.SpamProtectionService;
 
 @Service
 public class FoundItemServiceImpl implements FoundItemService {
@@ -34,13 +35,15 @@ public class FoundItemServiceImpl implements FoundItemService {
 	private final FoundItemRepository foundItemRepo;
 	private final CloudinaryService cloudinaryService;
 	private final SightEngineService sightEngineService;
+	private final SpamProtectionService spamProtectionService;
 	private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/webp", "image/gif");
 
 	public FoundItemServiceImpl(FoundItemRepository foundItemRepo, CloudinaryService cloudinaryService,
-			SightEngineService sightEngineService) {
+			SightEngineService sightEngineService, SpamProtectionService spamProtectionService) {
 		this.foundItemRepo = foundItemRepo;
 		this.cloudinaryService = cloudinaryService;
 		this.sightEngineService = sightEngineService;
+		this.spamProtectionService = spamProtectionService;
 	}
 
 	@Override
@@ -84,10 +87,15 @@ public class FoundItemServiceImpl implements FoundItemService {
 					"Maximum found-item request of a user can have is three, kindly close other request to create a new request.");
 		}
 
+		// ── Strict spam/content-safety check ─────────────────────────────────
+		spamProtectionService.checkText(foundItemDTo.getFoundItemName());
+		spamProtectionService.checkText(foundItemDTo.getDescription());
+		spamProtectionService.checkText(foundItemDTo.getPredictedLocation());
+
 		sightEngineService.checkImage(image);
 
 		// Map has details about uploaded image
-		Map<?,?> uploadedDetail = cloudinaryService.upload(image);
+		Map<?, ?> uploadedDetail = cloudinaryService.upload(image);
 		// Getting url from it
 		String url = (String) uploadedDetail.get("secure_url");
 
@@ -130,7 +138,7 @@ public class FoundItemServiceImpl implements FoundItemService {
 			throw new BadRequestException("Invalid credentials");
 		}
 
-		// Converting String -> UUID -> Byte Array (Because MYSQL store UUID in form of
+		// Converting String -> UUID
 		UUID publicUUID = UUID.fromString(publicId);
 
 		int rowsChanged = foundItemRepo.closeRequest(email, publicUUID);
@@ -139,5 +147,4 @@ public class FoundItemServiceImpl implements FoundItemService {
 		}
 		return Result.SUCCESS;
 	}
-
 }

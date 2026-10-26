@@ -32,6 +32,7 @@ import com.ietscroll.repository.TeamRepository;
 import com.ietscroll.repository.UserRepository;
 import com.ietscroll.response.Result;
 import com.ietscroll.response.TeamResponse;
+import com.ietscroll.service.SpamProtectionService;
 import com.ietscroll.service.TeamService;
 
 @Service
@@ -40,19 +41,19 @@ public class TeamServiceImpl implements TeamService {
 	private TeamRepository teamRepo;
 	private TeamJoinRequestRepository teamJoinRequestRepo;
 	private SkillRepository skillRepository;
-	private ChatClient mistralChatClient;
+	private SpamProtectionService spamProtectionService;
 	private UserRepository userRepo;
 	private ModelMapper modelMapper;
 
 	public TeamServiceImpl(TeamRepository teamRepo, SkillRepository skillRepository,
-			@Qualifier("mistralChatClient") ChatClient mistralChatClient, UserRepository userRepo,
-			TeamJoinRequestRepository teamJoinRequestRepo,ModelMapper modelMapper) {
+			SpamProtectionService spamProtectionService, UserRepository userRepo,
+			TeamJoinRequestRepository teamJoinRequestRepo, ModelMapper modelMapper) {
 		this.teamRepo = teamRepo;
 		this.skillRepository = skillRepository;
-		this.mistralChatClient = mistralChatClient;
+		this.spamProtectionService = spamProtectionService;
 		this.userRepo = userRepo;
-		this.teamJoinRequestRepo=teamJoinRequestRepo;
-		this.modelMapper=modelMapper;
+		this.teamJoinRequestRepo = teamJoinRequestRepo;
+		this.modelMapper = modelMapper;
 	}
 
 	@Override
@@ -68,11 +69,8 @@ public class TeamServiceImpl implements TeamService {
 			throw new DuplicateResourceException("You can't create more than one team");
 		}
 
-		String isSafe = mistralChatClient.prompt().user(team.getPurpose()).call().content();
-
-		if (!Boolean.parseBoolean(isSafe)) {
-			throw new ContentModerationException("Kindly maintain decorum!");
-		}
+		// ── Strict spam/content-safety check on team purpose ─────────────────
+		spamProtectionService.checkText(team.getPurpose());
 
 		UserEntity user = userRepo.findByEmail(ownerEmail);
 
@@ -102,13 +100,13 @@ public class TeamServiceImpl implements TeamService {
 		teamEntity.setNeededSkills(neededSkills);
 
 		teamEntity = teamRepo.save(teamEntity);
-		
+
 		TeamJoinRequest teamJoinRequest = new TeamJoinRequest();
 		teamJoinRequest.setApplicant(user);
 		teamJoinRequest.setMessage("OWNER");
 		teamJoinRequest.setRequestedTeam(teamEntity);
 		teamJoinRequest.setStatus(TeamRequestStatus.ACCEPTED);
-		
+
 		teamJoinRequestRepo.save(teamJoinRequest);
 
 		TeamResponse teamResponse = new TeamResponse();
@@ -147,7 +145,7 @@ public class TeamServiceImpl implements TeamService {
 			throw new BadRequestException("Team size should not less than zero and higher than twenty");
 		}
 		int count = teamRepo.updateTeamSize(ownerEmail, teamSize);
-		
+
 		return count == 1 ? Result.SUCCESS : Result.FAILED;
 	}
 
@@ -180,9 +178,9 @@ public class TeamServiceImpl implements TeamService {
 	public Page<TeamResponse> getActiveTeams(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		Page<Team >teams = teamRepo.findByStatusAndPrivacy(TeamStatus.OPEN, Privacy.PUBLIC, pageable);
-		
-		if(teams==null) {
+		Page<Team> teams = teamRepo.findByStatusAndPrivacy(TeamStatus.OPEN, Privacy.PUBLIC, pageable);
+
+		if (teams == null) {
 			throw new ResourceNotFoundException("No active teams rightnow");
 		}
 		return teams.map(
@@ -204,7 +202,7 @@ public class TeamServiceImpl implements TeamService {
 	public TeamResponse getMyTeamDetails(String onwerEmail) {
 
 		Team team = teamRepo.findByStatusAndCreatedBy_Email(TeamStatus.OPEN, onwerEmail);
-		if(team==null) {
+		if (team == null) {
 			throw new ResourceNotFoundException("Team doesn't exist");
 		}
 		TeamResponse teamResponse = modelMapper.map(team, TeamResponse.class);
@@ -217,5 +215,4 @@ public class TeamServiceImpl implements TeamService {
 	public List<TeamResponse> getMyTeamPosts(String ownerEmail) {
 		return null;
 	}
-
 }

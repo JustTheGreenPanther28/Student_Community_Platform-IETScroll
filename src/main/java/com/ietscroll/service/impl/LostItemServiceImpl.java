@@ -27,6 +27,7 @@ import com.ietscroll.response.Result;
 import com.ietscroll.service.CloudinaryService;
 import com.ietscroll.service.LostItemService;
 import com.ietscroll.service.SightEngineService;
+import com.ietscroll.service.SpamProtectionService;
 
 @Service
 public class LostItemServiceImpl implements LostItemService {
@@ -36,12 +37,14 @@ public class LostItemServiceImpl implements LostItemService {
 	private final LostItemRepository lostItemRepo;
 	private final SightEngineService sightEngineService;
 	private final CloudinaryService cloudinaryService;
+	private final SpamProtectionService spamProtectionService;
 
 	public LostItemServiceImpl(LostItemRepository lostItemRepo, SightEngineService sightEngineService,
-			CloudinaryService cloudinaryService) {
+			CloudinaryService cloudinaryService, SpamProtectionService spamProtectionService) {
 		this.lostItemRepo = lostItemRepo;
 		this.sightEngineService = sightEngineService;
 		this.cloudinaryService = cloudinaryService;
+		this.spamProtectionService = spamProtectionService;
 	}
 
 	@Override
@@ -64,6 +67,11 @@ public class LostItemServiceImpl implements LostItemService {
 			throw new LimitExceededException(
 					"Maximum lost-item request a user can have is two, kindly close other request to create a new request.");
 		}
+
+		// ── Strict spam/content-safety check ─────────────────────────────────
+		spamProtectionService.checkText(lostItemDTO.getLostItemname());
+		spamProtectionService.checkText(lostItemDTO.getDescription());
+		spamProtectionService.checkText(lostItemDTO.getPredictedLocation());
 
 		sightEngineService.checkImage(image);
 
@@ -143,5 +151,4 @@ public class LostItemServiceImpl implements LostItemService {
 		});
 		return PagedResponseDTO.from(mapped);
 	}
-
 }
