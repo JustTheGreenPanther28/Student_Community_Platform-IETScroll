@@ -57,13 +57,15 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<Object> handleUnreadable(HttpMessageNotReadableException exception) {
-		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Malformed request body");
+		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Malformed request body: " + exception.getMostSpecificCause().getMessage());
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleOtherException(Exception exception, WebRequest request) {
-		ErrorMessage errorMessage = new ErrorMessage(new Date(), "Something went wrong!");
-		return new ResponseEntity<>("Something went wrong!", new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+		// Return proper JSON ErrorMessage (not a raw string) so the frontend can parse it
+		ErrorMessage errorMessage = new ErrorMessage(new Date(),
+				exception.getMessage() != null ? exception.getMessage() : "Something went wrong!");
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
