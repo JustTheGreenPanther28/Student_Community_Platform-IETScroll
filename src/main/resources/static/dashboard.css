@@ -703,6 +703,137 @@ label.field-label {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==========================================================================
+   NOTIFICATIONS & ACTIVITY HISTORY
+   ========================================================================== */
+.notif-bell-btn {
+	background: #0f172a;
+	border: 1.5px solid var(--card-border);
+	color: #cbd5e1;
+	width: 42px;
+	height: 42px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	position: relative;
+	transition: all 0.2s ease;
+}
+
+.notif-bell-btn:hover {
+	border-color: var(--accent);
+	color: #ffffff;
+	background: #1e293b;
+}
+
+.notif-badge-count {
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	background: #f43f5e;
+	color: #ffffff;
+	font-size: 0.72rem;
+	font-weight: 800;
+	min-width: 20px;
+	height: 20px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	box-shadow: 0 2px 8px rgba(244, 63, 94, 0.6);
+}
+
+.notif-card {
+	background: var(--card-bg);
+	border: 1.5px solid var(--card-border);
+	border-radius: 16px;
+	padding: 1.3rem 1.5rem;
+	margin-bottom: 1rem;
+	display: flex;
+	gap: 1.25rem;
+	align-items: flex-start;
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+	transition: all 0.2s ease;
+}
+
+.notif-card:hover {
+	border-color: #334155;
+	transform: translateY(-1px);
+}
+
+.notif-card.success {
+	border-left: 4.5px solid #10b981;
+}
+
+.notif-card.rejected {
+	border-left: 4.5px solid #f43f5e;
+}
+
+.notif-icon-box {
+	width: 46px;
+	height: 46px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.35rem;
+	flex-shrink: 0;
+}
+
+.notif-icon-box.success {
+	background: rgba(16, 185, 129, 0.15);
+	color: #34d399;
+	border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.notif-icon-box.rejected {
+	background: rgba(244, 63, 94, 0.15);
+	color: #fb7185;
+	border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.notif-title {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--text-primary);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.notif-time {
+	font-size: 0.82rem;
+	color: #94a3b8;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin-top: 4px;
+}
+
+.notif-desc {
+	margin-top: 8px;
+	font-size: 0.92rem;
+	line-height: 1.5;
+	padding: 10px 14px;
+	border-radius: 10px;
+}
+
+.notif-desc.success {
+	background: rgba(16, 185, 129, 0.1);
+	border: 1px solid rgba(16, 185, 129, 0.25);
+	color: #a7f3d0;
+}
+
+.notif-desc.rejected {
+	background: rgba(244, 63, 94, 0.1);
+	border: 1px solid rgba(244, 63, 94, 0.3);
+	color: #fecdd3;
+}
+
+/* ==========================================================================
    MOBILE TOPBAR & OVERLAY
    ========================================================================== */
 .topbar {

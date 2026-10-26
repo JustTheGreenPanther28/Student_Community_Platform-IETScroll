@@ -25,7 +25,13 @@
 		id="mobileTopbar">
 		<button class="btn btn-sm text-white p-2" onclick="toggleSidebar()" aria-label="Toggle menu"><i class="bi bi-list fs-2"></i></button>
 		<span class="fw-bold text-white fs-5">IET SCROLL</span>
-		<div class="avatar" style="width:38px; height:38px; cursor: pointer;" id="avatar-icon-mobile" onclick="show('profile')">?</div>
+		<div class="d-flex align-items-center gap-2">
+			<button class="notif-bell-btn" onclick="show('notifications')" title="Activity Notifications">
+				<i class="bi bi-bell-fill fs-5"></i>
+				<span class="notif-badge-count d-none" id="notifBadgeMobile">0</span>
+			</button>
+			<div class="avatar" style="width:38px; height:38px; cursor: pointer;" id="avatar-icon-mobile" onclick="show('profile')">?</div>
+		</div>
 	</div>
 
 	<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
@@ -38,6 +44,8 @@
 						class="bi bi-grid-1x2-fill"></i> Overview</a>
 				<a href="#" onclick="show('profile', this); return false;" class="nav-link"><i
 						class="bi bi-person-badge"></i> Profile</a>
+				<a href="#" onclick="show('notifications', this); return false;" class="nav-link"><i
+						class="bi bi-bell"></i> Activity Log <span class="badge bg-danger rounded-pill ms-auto d-none" id="notifNavBadge">0</span></a>
 				<a href="#" onclick="show('lost', this); return false;" class="nav-link"><i class="bi bi-search-heart"></i>
 					Lost Items</a>
 				<a href="#" onclick="show('found', this); return false;" class="nav-link"><i class="bi bi-box-seam"></i>
@@ -60,6 +68,10 @@
 					<p>Welcome back, <span id="welcome-name" class="fw-semibold text-white">…</span></p>
 				</div>
 				<div class="d-flex align-items-center gap-3">
+					<button class="notif-bell-btn d-none d-md-flex" onclick="show('notifications')" title="Activity & Notifications">
+						<i class="bi bi-bell-fill fs-5"></i>
+						<span class="notif-badge-count d-none" id="notifBadge">0</span>
+					</button>
 					<div class="text-end d-none d-md-block">
 						<div id="top-username">…</div>
 						<div id="top-email">…</div>
@@ -150,6 +162,18 @@
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<!-- ============ NOTIFICATIONS & ACTIVITY ============ -->
+			<div id="notifications" class="section">
+				<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+					<div>
+						<h4 class="fw-bold text-white mb-1"><i class="bi bi-bell-fill text-primary me-2"></i>Submission & Activity History</h4>
+						<p class="text-muted small mb-0">Live audit log of all your report uploads, approval timestamps, and rejection details.</p>
+					</div>
+					<button class="btn-outline-accent" onclick="clearAllNotifications()"><i class="bi bi-trash3 me-1"></i> Clear History</button>
+				</div>
+				<div id="notificationsList"></div>
 			</div>
 
 			<!-- ============ LOST ITEMS ============ -->

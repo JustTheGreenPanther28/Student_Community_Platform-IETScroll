@@ -97,6 +97,7 @@ function show(id, el) {
     const titles = {
         dashboard: 'Overview',
         profile: 'Profile',
+        notifications: 'Activity Log',
         lost: 'Lost Items',
         found: 'Found Items',
         team: 'Team Finder',
@@ -114,6 +115,7 @@ function show(id, el) {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    if (id === 'notifications') { markAllNotificationsRead(); renderNotifications(); }
     if (id === 'lost') loadLostBrowse();
     if (id === 'found') loadFoundBrowse();
     if (id === 'team') loadTeamBrowse();
@@ -197,6 +199,7 @@ async function updateUsername() {
         toast('Username updated');
         document.getElementById('newUsernameInput').value = '';
         loadProfile();
+updateNotifBadges();
     } catch (e) {
         toast(e.message, 'error');
     }
@@ -394,6 +397,13 @@ async function submitLostItem() {
     try {
         await api('/api/v1/lost-item', { method: 'POST', formData: fd });
         toast('Lost item reported successfully');
+        addNotification({
+            type: 'lost',
+            title: name,
+            status: 'UPLOADED',
+            message: 'Lost item report verified and uploaded successfully. Location: ' + (location || 'Campus / Unspecified'),
+            time: new Date()
+        });
         document.getElementById('lostItemName').value = '';
         document.getElementById('lostItemDesc').value = '';
         document.getElementById('lostItemLocation').value = '';
@@ -404,6 +414,13 @@ async function submitLostItem() {
         switchTab('lost', 'lost-mine');
     } catch (e) {
         toast(e.message, 'error');
+        addNotification({
+            type: 'lost',
+            title: name || 'Lost Item Report',
+            status: 'REJECTED',
+            message: e.message || 'Report was rejected during safety verification.',
+            time: new Date()
+        });
     } finally {
         if (lostStatusEl) lostStatusEl.style.display = 'none';
         btn.disabled = false;
@@ -511,6 +528,13 @@ async function submitFoundItem() {
     try {
         await api('/api/v1/found-item', { method: 'POST', formData: fd });
         toast('Found item reported successfully');
+        addNotification({
+            type: 'found',
+            title: name,
+            status: 'UPLOADED',
+            message: 'Found item report verified and uploaded successfully. Location: ' + (location || 'Campus / Unspecified'),
+            time: new Date()
+        });
         document.getElementById('foundItemName').value = '';
         document.getElementById('foundItemDesc').value = '';
         document.getElementById('foundItemLocation').value = '';
@@ -519,6 +543,13 @@ async function submitFoundItem() {
         switchTab('found', 'found-mine');
     } catch (e) {
         toast(e.message, 'error');
+        addNotification({
+            type: 'found',
+            title: name || 'Found Item Report',
+            status: 'REJECTED',
+            message: e.message || 'Report was rejected during safety verification.',
+            time: new Date()
+        });
     } finally {
         if (foundStatusEl) foundStatusEl.style.display = 'none';
         btn.disabled = false;
@@ -627,6 +658,13 @@ async function createTeam() {
         switchTab('team', 'team-mine');
     } catch (e) {
         toast(e.message, 'error');
+        addNotification({
+            type: 'team',
+            title: 'Team: ' + purpose.slice(0, 35) + '...',
+            status: 'REJECTED',
+            message: e.message || 'Team creation rejected by campus moderation.',
+            time: new Date()
+        });
     } finally {
         if (teamStatusEl) teamStatusEl.style.display = 'none';
         btn.disabled = false;
@@ -854,6 +892,137 @@ async function submitResume() {
         btn.innerText = 'Analyze Resume';
     }
 }
+
+/* ============ NOTIFICATIONS & ACTIVITY AUDIT ============ */
+function getNotifKey() {
+    return 'iet_notifs_' + (currentUserEmail || 'global');
+}
+
+function getNotifications() {
+    try {
+        const raw = localStorage.getItem(getNotifKey());
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveNotifications(list) {
+    try {
+        localStorage.setItem(getNotifKey(), JSON.stringify(list));
+    } catch {}
+    updateNotifBadges();
+}
+
+function addNotification({ type, title, status, message, time }) {
+    const list = getNotifications();
+    const entry = {
+        id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type, // 'lost', 'found', 'team'
+        title: title || 'Submission',
+        status, // 'UPLOADED' or 'REJECTED'
+        message: message || '',
+        time: time ? new Date(time).toISOString() : new Date().toISOString(),
+        read: false
+    };
+    list.unshift(entry);
+    if (list.length > 50) list.pop();
+    saveNotifications(list);
+    renderNotifications();
+}
+
+function formatNotifTime(isoString) {
+    try {
+        const d = new Date(isoString);
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + 
+               ' at ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    } catch {
+        return isoString || 'Recently';
+    }
+}
+
+function renderNotifications() {
+    const container = document.getElementById('notificationsList');
+    if (!container) return;
+    const list = getNotifications();
+    if (!list.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="bi bi-bell-slash"></i>
+                <div class="fw-bold fs-5 text-white mb-1">No Activity Logged Yet</div>
+                <div class="text-muted small">Your report upload history, safety approvals, and rejection notices will appear here with timestamps.</div>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    list.forEach(n => {
+        const isSuccess = n.status === 'UPLOADED' || n.status === 'SUCCESS';
+        const card = document.createElement('div');
+        card.className = 'notif-card ' + (isSuccess ? 'success' : 'rejected');
+
+        let iconClass = 'bi-file-earmark-text';
+        if (n.type === 'lost') iconClass = 'bi-search-heart';
+        if (n.type === 'found') iconClass = 'bi-box-seam';
+        if (n.type === 'team') iconClass = 'bi-people';
+
+        const statusBadge = isSuccess
+            ? '<span class="badge-status open"><i class="bi bi-check-circle-fill me-1"></i> UPLOADED</span>'
+            : '<span class="badge-status closed"><i class="bi bi-x-circle-fill me-1"></i> REJECTED</span>';
+
+        card.innerHTML = `
+            <div class="notif-icon-box ${isSuccess ? 'success' : 'rejected'}">
+                <i class="bi ${iconClass}"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="notif-title">
+                    <span>${n.title}</span>
+                    ${statusBadge}
+                </div>
+                <div class="notif-time">
+                    <i class="bi bi-clock"></i> ${formatNotifTime(n.time)}
+                </div>
+                <div class="notif-desc ${isSuccess ? 'success' : 'rejected'}">
+                    <strong>${isSuccess ? 'Status:' : 'Rejection Reason:'}</strong> ${n.message}
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function updateNotifBadges() {
+    const list = getNotifications();
+    const unread = list.filter(n => !n.read).length;
+
+    const b1 = document.getElementById('notifBadge');
+    const b2 = document.getElementById('notifBadgeMobile');
+    const b3 = document.getElementById('notifNavBadge');
+
+    [b1, b2, b3].forEach(el => {
+        if (!el) return;
+        if (unread > 0) {
+            el.innerText = unread;
+            el.classList.remove('d-none');
+        } else {
+            el.classList.add('d-none');
+        }
+    });
+}
+
+function clearAllNotifications() {
+    if (!confirm('Clear your entire upload activity history?')) return;
+    saveNotifications([]);
+    renderNotifications();
+    toast('Activity history cleared', 'info');
+}
+
+function markAllNotificationsRead() {
+    const list = getNotifications();
+    list.forEach(n => n.read = true);
+    saveNotifications(list);
+}
+
 function logout() {
 	localStorage.removeItem('iet_token');
 	window.location.replace('login.html');
