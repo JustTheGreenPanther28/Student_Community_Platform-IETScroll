@@ -86,6 +86,15 @@ const BASE = window.location.origin;
 					setTimeout(() => {
 						window.location.href = BASE + '/dashboard.html';
 					}, 1400);
+				} else {
+					let errorMsg = 'Invalid email or password.';
+					try {
+						const data = await res.json();
+						if (data && data.message) {
+							errorMsg = data.message;
+						}
+					} catch {}
+					showAlert('fail', errorMsg);
 				}
 			} catch {
 				showAlert('fail', 'Could not reach the server. Please try again.');

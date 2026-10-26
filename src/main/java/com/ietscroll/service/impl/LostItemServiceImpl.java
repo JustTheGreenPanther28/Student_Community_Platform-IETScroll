@@ -16,16 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ietscroll.dto.LostItemDTO;
-import com.ietscroll.exception.BadRequestException;
-import com.ietscroll.exception.LimitExceededException;
 import com.ietscroll.dto.PagedResponseDTO;
 import com.ietscroll.entity.LostItemEntity;
+import com.ietscroll.exception.BadRequestException;
+import com.ietscroll.exception.LimitExceededException;
 import com.ietscroll.general.enums.LostItemStatus;
 import com.ietscroll.repository.LostItemRepository;
 import com.ietscroll.response.LostItemResponse;
 import com.ietscroll.response.Result;
 import com.ietscroll.service.CloudinaryService;
 import com.ietscroll.service.LostItemService;
+import com.ietscroll.service.NvidiaVisionService;
 import com.ietscroll.service.SightEngineService;
 import com.ietscroll.service.SpamProtectionService;
 
@@ -38,13 +39,16 @@ public class LostItemServiceImpl implements LostItemService {
 	private final SightEngineService sightEngineService;
 	private final CloudinaryService cloudinaryService;
 	private final SpamProtectionService spamProtectionService;
+	private final NvidiaVisionService nvidiaVisionService;
 
 	public LostItemServiceImpl(LostItemRepository lostItemRepo, SightEngineService sightEngineService,
-			CloudinaryService cloudinaryService, SpamProtectionService spamProtectionService) {
+			CloudinaryService cloudinaryService, SpamProtectionService spamProtectionService,
+			NvidiaVisionService nvidiaVisionService) {
 		this.lostItemRepo = lostItemRepo;
 		this.sightEngineService = sightEngineService;
 		this.cloudinaryService = cloudinaryService;
 		this.spamProtectionService = spamProtectionService;
+		this.nvidiaVisionService = nvidiaVisionService;
 	}
 
 	@Override
@@ -53,6 +57,17 @@ public class LostItemServiceImpl implements LostItemService {
 
 		if (lostItemDTO == null) {
 			throw new BadRequestException("Please give valid input");
+		}
+
+		String itemName = lostItemDTO.getLostItemname() != null ? lostItemDTO.getLostItemname().trim() : "";
+		String description = lostItemDTO.getDescription() != null ? lostItemDTO.getDescription().trim() : "";
+
+		if (itemName.length() < 3) {
+			throw new BadRequestException("Please provide a valid item name (at least 3 characters).");
+		}
+
+		if (description.length() < 20) {
+			throw new BadRequestException("Please provide a detailed description (at least 20 characters) describing the item's appearance, color, brand, or condition.");
 		}
 
 		if (image == null || image.isEmpty()) {
@@ -68,11 +83,16 @@ public class LostItemServiceImpl implements LostItemService {
 					"Maximum lost-item request a user can have is two, kindly close other request to create a new request.");
 		}
 
-		// ── Strict spam/content-safety check ─────────────────────────────────
-		spamProtectionService.checkText(lostItemDTO.getLostItemname());
-		spamProtectionService.checkText(lostItemDTO.getDescription());
+		// ── STEP 1: Strict text spam & abusive content check ──────────────────
+		spamProtectionService.checkText(itemName);
+		spamProtectionService.checkText(description);
 		spamProtectionService.checkText(lostItemDTO.getPredictedLocation());
 
+		// ── STEP 2: NVIDIA Vision check for image authenticity & relevance ────
+		// Rejects non-physical items, software diagrams, code screenshots, memes, or mismatched items.
+		nvidiaVisionService.checkImageRelevance(image, itemName, description);
+
+		// ── STEP 3: Image safety & SightEngine double-verification ────────────
 		sightEngineService.checkImage(image);
 
 		// Map has details about uploaded image
@@ -82,8 +102,8 @@ public class LostItemServiceImpl implements LostItemService {
 
 		LostItemEntity lostItem = new LostItemEntity();
 		lostItem.setImageURL(url);
-		lostItem.setDescription(lostItemDTO.getDescription());
-		lostItem.setLostItemname(lostItemDTO.getLostItemname());
+		lostItem.setDescription(description);
+		lostItem.setLostItemname(itemName);
 		lostItem.setOwnerEmail(email);
 		lostItem.setPredictedLocation(lostItemDTO.getPredictedLocation());
 		lostItem.setPrize(lostItemDTO.getPrize());

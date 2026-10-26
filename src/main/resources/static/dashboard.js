@@ -314,8 +314,14 @@ async function submitLostItem() {
     const prize = (!isNaN(parsedPrize) && parsedPrize >= 0) ? parsedPrize : 0;
     const imageFile = document.getElementById('lostItemImage').files[0];
 
-    if (!name || !desc) {
+        if (!name || !desc) {
         return toast('Item name and description are required', 'error');
+    }
+    if (name.length < 3) {
+        return toast('Item name must be at least 3 characters', 'error');
+    }
+    if (desc.length < 20) {
+        return toast('Please provide a detailed description (at least 20 characters) describing the item color, brand, condition, etc.', 'error');
     }
     const imgError = validateImageFile(imageFile);
     if (imgError) return toast(imgError, 'error');
@@ -421,8 +427,14 @@ async function submitFoundItem() {
     const location = document.getElementById('foundItemLocation').value.trim();
     const imageFile = document.getElementById('foundItemImage').files[0];
 
-    if (!name || !desc) {
+        if (!name || !desc) {
         return toast('Item name and description are required', 'error');
+    }
+    if (name.length < 3) {
+        return toast('Item name must be at least 3 characters', 'error');
+    }
+    if (desc.length < 20) {
+        return toast('Please provide a detailed description (at least 20 characters) describing the item color, brand, condition, etc.', 'error');
     }
     const imgError = validateImageFile(imageFile);
     if (imgError) return toast(imgError, 'error');
