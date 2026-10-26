@@ -1,9 +1,14 @@
 package com.ietscroll.service.impl;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +41,15 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
     @Value("${nvidia.vision.url:https://integrate.api.nvidia.com/v1/chat/completions}")
     private String apiUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public NvidiaVisionServiceImpl() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(6000);
+        factory.setReadTimeout(12000);
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     private static final String SAFETY_PROMPT = """
             You are a strict campus security and Anti-Ragging officer for a university Lost & Found platform.
@@ -116,13 +129,10 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
             return null;
         }
 
-        byte[] bytes = file.getBytes();
-        String contentType = file.getContentType();
-        if (contentType == null || contentType.isBlank()) {
-            contentType = "image/jpeg";
-        }
+        byte[] optimizedBytes = optimizeImageForVision(file);
+        String contentType = "image/jpeg";
 
-        String base64Image = Base64.getEncoder().encodeToString(bytes);
+        String base64Image = Base64.getEncoder().encodeToString(optimizedBytes);
         String dataUrl = "data:" + contentType + ";base64," + base64Image;
 
         Map<String, Object> textPart = Map.of("type", "text", "text", prompt);
@@ -164,5 +174,44 @@ public class NvidiaVisionServiceImpl implements NvidiaVisionService {
             log.warn("Failed to parse NVIDIA Vision response: {}", e.getMessage());
         }
         return null;
+    }
+
+    private byte[] optimizeImageForVision(MultipartFile file) {
+        try {
+            BufferedImage original = ImageIO.read(file.getInputStream());
+            if (original == null) {
+                return file.getBytes();
+            }
+            int maxDim = 800;
+            int width = original.getWidth();
+            int height = original.getHeight();
+            if (width <= maxDim && height <= maxDim) {
+                return file.getBytes();
+            }
+            int newWidth, newHeight;
+            if (width > height) {
+                newWidth = maxDim;
+                newHeight = (int) ((double) height / width * maxDim);
+            } else {
+                newHeight = maxDim;
+                newWidth = (int) ((double) width / height * maxDim);
+            }
+            BufferedImage resized = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = resized.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(original, 0, 0, newWidth, newHeight, null);
+            g.dispose();
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(resized, "jpeg", baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            log.warn("Image downscale for vision skipped ({}), using raw bytes", e.getMessage());
+            try {
+                return file.getBytes();
+            } catch (IOException io) {
+                return new byte[0];
+            }
+        }
     }
 }

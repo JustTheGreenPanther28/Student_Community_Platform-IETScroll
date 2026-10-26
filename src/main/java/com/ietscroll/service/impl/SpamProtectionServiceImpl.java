@@ -75,6 +75,34 @@ public class SpamProtectionServiceImpl implements SpamProtectionService {
         checkNemotronSafety(text);
     }
 
+    @Override
+    public void checkItemSubmission(String name, String description, String location) {
+        // Fast emoji checks across all fields
+        if (name != null && EMOJI_PATTERN.matcher(name).find()) {
+            throw new ContentModerationException("Emojis are not permitted in item names. Please write without emojis.");
+        }
+        if (description != null && EMOJI_PATTERN.matcher(description).find()) {
+            throw new ContentModerationException("Emojis are not permitted in item descriptions. Please write without emojis.");
+        }
+        if (location != null && EMOJI_PATTERN.matcher(location).find()) {
+            throw new ContentModerationException("Emojis are not permitted in locations. Please write without emojis.");
+        }
+
+        // Consolidate into a single context-aware text check to avoid redundant API roundtrips
+        StringBuilder sb = new StringBuilder();
+        if (name != null && !name.isBlank()) sb.append("Item Name: ").append(name.trim()).append("\n");
+        if (description != null && !description.isBlank()) sb.append("Description: ").append(description.trim()).append("\n");
+        if (location != null && !location.isBlank()) sb.append("Predicted Location: ").append(location.trim());
+
+        String combined = sb.toString().trim();
+        if (combined.isEmpty()) {
+            return;
+        }
+
+        checkAntiRaggingAndHierarchy(combined);
+        checkNemotronSafety(combined);
+    }
+
     private void checkAntiRaggingAndHierarchy(String text) {
         try {
             String evaluation = mistralChatClient

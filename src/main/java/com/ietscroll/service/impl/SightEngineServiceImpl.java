@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ietscroll.dto.SightEngineResponse;
 import com.ietscroll.exception.InappropriateImageException;
-import com.ietscroll.service.NvidiaVisionService;
 import com.ietscroll.service.SightEngineService;
 import com.ietscroll.util.CustomByteArrayResource;
 import com.ietscroll.util.ModerationEvaluator;
@@ -34,21 +33,20 @@ public class SightEngineServiceImpl implements SightEngineService {
 	@Value("${sightengine.api-url}")
 	private String apiUrl;
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
 	private final ModerationEvaluator evaluator;
-	private final NvidiaVisionService nvidiaVisionService;
 
-	public SightEngineServiceImpl(ModerationEvaluator evaluator, NvidiaVisionService nvidiaVisionService) {
+	public SightEngineServiceImpl(ModerationEvaluator evaluator) {
 		this.evaluator = evaluator;
-		this.nvidiaVisionService = nvidiaVisionService;
+		org.springframework.http.client.SimpleClientHttpRequestFactory factory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+		factory.setConnectTimeout(5000);
+		factory.setReadTimeout(10000);
+		this.restTemplate = new RestTemplate(factory);
 	}
 
 	@Override
 	public void checkImage(MultipartFile file) throws IOException {
-		// ── STEP 1: NVIDIA Vision check FIRST (Threats, Weapons, Adult, Spam) ──
-		nvidiaVisionService.checkImage(file);
-
-		// ── STEP 2: SightEngine double-verification (if available) ─────────────
+		// SightEngine double-verification (if available)
 		try {
 			LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 			CustomByteArrayResource resource = new CustomByteArrayResource(file.getBytes(), file.getName());
@@ -71,7 +69,6 @@ public class SightEngineServiceImpl implements SightEngineService {
 			throw e;
 		} catch (Exception e) {
 			// SightEngine is free tier and can fail / run out of quota.
-			// Since NVIDIA Vision already verified the image as SAFE in Step 1, we allow it.
 			log.warn("SightEngine double-verification unavailable or quota exceeded ({}). NVIDIA Vision approval accepted.", e.getMessage());
 		}
 	}

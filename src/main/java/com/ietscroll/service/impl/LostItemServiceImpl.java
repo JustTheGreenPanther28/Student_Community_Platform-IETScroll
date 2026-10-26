@@ -83,10 +83,8 @@ public class LostItemServiceImpl implements LostItemService {
 					"Maximum lost-item request a user can have is two, kindly close other request to create a new request.");
 		}
 
-		// ── STEP 1: Strict text spam & abusive content check ──────────────────
-		spamProtectionService.checkText(itemName);
-		spamProtectionService.checkText(description);
-		spamProtectionService.checkText(lostItemDTO.getPredictedLocation());
+		// ── STEP 1: Strict text spam & abusive content check (single consolidated batch) ──
+		spamProtectionService.checkItemSubmission(itemName, description, lostItemDTO.getPredictedLocation());
 
 		// ── STEP 2: NVIDIA Vision check for image authenticity & relevance ────
 		// Rejects non-physical items, software diagrams, code screenshots, memes, or mismatched items.

@@ -102,10 +102,8 @@ public class FoundItemServiceImpl implements FoundItemService {
 					"Maximum found-item request of a user can have is three, kindly close other request to create a new request.");
 		}
 
-		// ── STEP 1: Strict text spam & abusive content check ──────────────────
-		spamProtectionService.checkText(itemName);
-		spamProtectionService.checkText(description);
-		spamProtectionService.checkText(foundItemDTo.getPredictedLocation());
+		// ── STEP 1: Strict text spam & abusive content check (single consolidated batch) ──
+		spamProtectionService.checkItemSubmission(itemName, description, foundItemDTo.getPredictedLocation());
 
 		// ── STEP 2: NVIDIA Vision check for image authenticity & relevance ────
 		// Rejects non-physical items, software diagrams, code screenshots, memes, or mismatched items.
