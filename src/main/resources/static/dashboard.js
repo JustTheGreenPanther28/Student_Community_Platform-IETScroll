@@ -386,8 +386,11 @@ async function submitLostItem() {
     fd.append('image', imageFile);
 
     const btn = document.getElementById('lostSubmitBtn');
+    const lostStatusEl = document.getElementById('lostSubmitStatus');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-inline me-2"></span>AI Safety Verification in progress…';
+    btn.innerHTML = '<span class="spinner-inline me-2"></span>Analyzing…';
+    if (lostStatusEl) { lostStatusEl.innerHTML = '<span class="spinner-inline me-2"></span>We are analyzing your information, once it\'s found correct and secure it will be uploaded...'; lostStatusEl.style.display = 'flex'; }
+    toast("We are analyzing your information, once it's found correct and secure it will be uploaded...", 'info');
     try {
         await api('/api/v1/lost-item', { method: 'POST', formData: fd });
         toast('Lost item reported successfully');
@@ -402,6 +405,7 @@ async function submitLostItem() {
     } catch (e) {
         toast(e.message, 'error');
     } finally {
+        if (lostStatusEl) lostStatusEl.style.display = 'none';
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-upload me-1"></i> Submit Report';
     }
@@ -499,8 +503,11 @@ async function submitFoundItem() {
     fd.append('image', imageFile);
 
     const btn = document.getElementById('foundSubmitBtn');
+    const foundStatusEl = document.getElementById('foundSubmitStatus');
     btn.disabled = true;
-    btn.innerText = 'Submitting…';
+    btn.innerHTML = '<span class="spinner-inline me-2"></span>Analyzing…';
+    if (foundStatusEl) { foundStatusEl.innerHTML = '<span class="spinner-inline me-2"></span>We are analyzing your information, once it\'s found correct and secure it will be uploaded...'; foundStatusEl.style.display = 'flex'; }
+    toast("We are analyzing your information, once it's found correct and secure it will be uploaded...", 'info');
     try {
         await api('/api/v1/found-item', { method: 'POST', formData: fd });
         toast('Found item reported successfully');
@@ -513,8 +520,9 @@ async function submitFoundItem() {
     } catch (e) {
         toast(e.message, 'error');
     } finally {
+        if (foundStatusEl) foundStatusEl.style.display = 'none';
         btn.disabled = false;
-        btn.innerText = 'Submit Report';
+        btn.innerHTML = '<i class="bi bi-upload me-1"></i> Submit Report';
     }
 }
 
@@ -606,8 +614,11 @@ async function createTeam() {
     if (isNaN(sizeNum) || sizeNum < 3) return toast('Enter a valid team size (min. 3)', 'error');
 
     const btn = document.getElementById('teamCreateBtn');
+    const teamStatusEl = document.getElementById('teamCreateStatus');
     btn.disabled = true;
-    btn.innerText = 'Creating…';
+    btn.innerHTML = '<span class="spinner-inline me-2"></span>Analyzing…';
+    if (teamStatusEl) { teamStatusEl.innerHTML = '<span class="spinner-inline me-2"></span>We are analyzing your information, once it\'s found correct and secure it will be uploaded...'; teamStatusEl.style.display = 'flex'; }
+    toast("We are analyzing your information, once it's found correct and secure it will be uploaded...", 'info');
     try {
         await api('/api/v1/team', { method: 'POST', jsonBody: { purpose: purpose, teamSize: sizeNum, privacy: privacy } });
         toast('Team created');
@@ -617,8 +628,9 @@ async function createTeam() {
     } catch (e) {
         toast(e.message, 'error');
     } finally {
+        if (teamStatusEl) teamStatusEl.style.display = 'none';
         btn.disabled = false;
-        btn.innerText = 'Create Team';
+        btn.innerHTML = '<i class="bi bi-people-fill me-1"></i> Create Team';
     }
 }
 
